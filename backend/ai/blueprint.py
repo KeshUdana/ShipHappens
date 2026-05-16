@@ -1,5 +1,5 @@
 """
-PBI-07 / PBI-19 — Blueprint extraction.
+PBI-07 / PBI-19 / PBI-23 — Blueprint extraction.
 
 Public API:
     from ai.blueprint import extract_blueprint
@@ -20,6 +20,44 @@ from ai.schemas import BlueprintSchema
 from ai.wrapper import call_structured
 
 logger = logging.getLogger(__name__)
+
+
+# ── Blueprint post-validation (PBI-23) ───────────────────────────────────────
+
+
+def _validate_blueprint(bp: BlueprintSchema) -> None:
+    """
+    Sanity-check the extracted blueprint.
+    Raises ValueError to trigger a wrapper retry on obviously bad output.
+    """
+    errors: list[str] = []
+
+    if bp.total_marks <= 0:
+        errors.append(f"total_marks must be > 0, got {bp.total_marks}")
+
+    if not bp.sections:
+        errors.append("Blueprint has no sections.")
+
+    section_total = sum(s.marks for s in bp.sections)
+    if section_total != bp.total_marks:
+        errors.append(
+            f"Section marks sum {section_total} != total_marks {bp.total_marks}. "
+            "Model may have combined marks from multiple papers."
+        )
+
+    for sec in bp.sections:
+        if not sec.id.strip():
+            errors.append(f"Section has empty id: {sec.title!r}")
+        if sec.marks <= 0:
+            errors.append(f"Section '{sec.id}' has marks <= 0: {sec.marks}")
+        if not sec.question_types:
+            errors.append(f"Section '{sec.id}' has no question_types.")
+
+    if errors:
+        raise ValueError(
+            f"Blueprint failed {len(errors)} sanity check(s):\n"
+            + "\n".join(f"  - {e}" for e in errors)
+        )
 
 # ── Prompt ──────────────────────────────────────────────────────────────────
 #
@@ -77,13 +115,25 @@ def extract_blueprint(file_uris: list[str]) -> BlueprintSchema:
 
     logger.info("[blueprint] Extracting blueprint from %d file(s)...", len(file_uris))
 
-    blueprint = call_structured(
-        model=fast_model,
-        contents=contents,
-        schema=BlueprintSchema,
-        retries=1,
-        label="blueprint",
-    )
+    try:
+        blueprint = call_structured(
+            model=fast_model,
+            contents=contents,
+            schema=BlueprintSchema,
+            retries=1,
+            label="blueprint",
+            post_validate=_validate_blueprint,
+        )
+    except Exception as exc:
+        err = str(exc)
+        # Surface API errors (e.g. corrupted / unsupported PDF) with a clean message
+        if "INVALID_ARGUMENT" in err or "400" in err:
+            raise ValueError(
+                "One or more uploaded files could not be processed by Gemini. "
+                "Ensure all files are valid, readable PDF documents. "
+                f"Original error: {exc}"
+            ) from exc
+        raise
 
     logger.info(
         "[blueprint] Done: subject=%r  board=%r  sections=%d  total_marks=%d",

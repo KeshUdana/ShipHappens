@@ -1,5 +1,5 @@
 """
-PBI-12 / PBI-19 — Paper generation.
+PBI-12 / PBI-19 / PBI-23 — Paper generation.
 
 Public API:
     from ai.generate import generate_paper
@@ -55,6 +55,8 @@ HARD CONSTRAINTS — an automated validator will reject any violation:
 2. Marks per section: questions in each section must sum to exactly that section's marks (see \
    MARKS PLAN above).
 3. Total marks: sum across ALL sections = {total_marks}. Not one mark more or less.
+   IMPORTANT: If you cannot make the marks sum to {total_marks}, signal failure by setting \
+   the paper's total_marks field to 0. Do not silently output a wrong total.
 4. Question IDs: every question.id must be UNIQUE. Use format s<section_idx>q<q_idx> \
    (e.g. s0q0, s0q1, s1q0). Section index starts at 0.
 5. No empty fields: every question.prompt must be non-empty, meaningful text.
@@ -97,12 +99,32 @@ class PaperValidationError(ValueError):
     """Raised when the generated paper fails hard-constraint checks."""
 
 
+_DRIFT_THRESHOLD_PCT = 10.0  # marks within this % are accepted with a warning
+
+
+def _marks_drift_pct(actual: int, expected: int) -> float:
+    if expected == 0:
+        return 100.0
+    return abs(actual - expected) / expected * 100.0
+
+
 def _validate_paper(paper: PaperSchema, blueprint: BlueprintSchema) -> None:
     """
     Domain checks that Pydantic cannot enforce.
     Raises PaperValidationError (a ValueError subclass) to trigger a wrapper retry.
+
+    Total-marks policy (PBI-23):
+      - paper.total_marks == 0 → model signalled it could not match; always retry.
+      - drift > _DRIFT_THRESHOLD_PCT  → error; triggers retry.
+      - drift <= _DRIFT_THRESHOLD_PCT → log warning; accept (no retry).
     """
     errors: list[str] = []
+
+    # Model "signal failure" marker
+    if paper.total_marks == 0:
+        errors.append(
+            "Model set total_marks=0 to signal it could not satisfy the marks constraint."
+        )
 
     if len(paper.sections) != len(blueprint.sections):
         errors.append(
@@ -110,20 +132,32 @@ def _validate_paper(paper: PaperSchema, blueprint: BlueprintSchema) -> None:
         )
 
     all_questions = [q for sec in paper.sections for q in sec.questions]
-
     actual_total = sum(q.marks for q in all_questions)
-    if actual_total != blueprint.total_marks:
+    drift = _marks_drift_pct(actual_total, blueprint.total_marks)
+
+    if drift > _DRIFT_THRESHOLD_PCT:
         errors.append(
-            f"Total marks: expected {blueprint.total_marks}, got {actual_total}"
+            f"Total marks drift {drift:.0f}% (>{_DRIFT_THRESHOLD_PCT}%): "
+            f"expected {blueprint.total_marks}, got {actual_total} — retrying."
+        )
+    elif drift > 0:
+        logger.warning(
+            "[generate] Marks drift %.1f%% (<=%.0f%% tolerance): "
+            "expected %d, got %d — accepting.",
+            drift, _DRIFT_THRESHOLD_PCT, blueprint.total_marks, actual_total,
         )
 
     bp_marks = {s.id: s.marks for s in blueprint.sections}
     for sec in paper.sections:
         expected = bp_marks.get(sec.id)
+        if expected is None:
+            continue
         actual = sum(q.marks for q in sec.questions)
-        if expected is not None and actual != expected:
+        sec_drift = _marks_drift_pct(actual, expected)
+        if sec_drift > _DRIFT_THRESHOLD_PCT:
             errors.append(
-                f"Section '{sec.id}': expected {expected} marks, got {actual}"
+                f"Section '{sec.id}': marks drift {sec_drift:.0f}%: "
+                f"expected {expected}, got {actual}"
             )
 
     dupes = [qid for qid, n in Counter(q.id for q in all_questions).items() if n > 1]
@@ -206,6 +240,25 @@ def generate_paper(blueprint: BlueprintSchema, file_uris: list[str]) -> PaperSch
     )
 
     paper = _pick_model_and_generate(contents, blueprint)
+
+    # PBI-23: Final drift safety net — if marks are still >10% off after normal
+    # retries, force one more attempt before surfacing the result.
+    actual = sum(q.marks for s in paper.sections for q in s.questions)
+    drift = _marks_drift_pct(actual, blueprint.total_marks)
+    if drift > _DRIFT_THRESHOLD_PCT:
+        logger.warning(
+            "[generate] Final drift check: %.0f%% off after normal retries. "
+            "Forcing one additional attempt.",
+            drift,
+        )
+        try:
+            paper = _pick_model_and_generate(contents, blueprint)
+        except Exception as exc:
+            logger.error(
+                "[generate] Additional attempt also failed: %s. "
+                "Returning best-effort paper with %.0f%% drift.",
+                exc, drift,
+            )
 
     logger.info(
         "[generate] Done: title=%r  questions=%d  marks=%d",
