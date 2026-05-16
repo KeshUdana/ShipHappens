@@ -1,0 +1,43 @@
+{
+  "subject": "General English",
+  "board": "Department of Examinations Sri Lanka",
+  "level": "GCE Advanced Level",
+  "duration_minutes": 60,
+  "total_marks": 60,
+  "tone_notes": "Formal and objective for instructions and grammar examples. Vocabulary level is intermediate. Reading passages are factual or narrative snippets. Questions require precise understanding of grammar rules, word usage, and comprehension of short texts. Answers should be concise and grammatically correct.",
+  "instructions_pattern": [
+    "Answer all questions on this paper itself.",
+    "Marks will be deducted for bad punctuation (Omission of full stops, capital letters, etc.) and for mistakes in basic grammar.",
+    "The supervisor will provide you with sheets for rough work."
+  ],
+  "sections": [
+    {
+      "id": "partA",
+      "title": "PART A — GRAMMAR and VOCABULARY",
+      "marks": 35,
+      "instructions": "Answer all questions in this section related to Grammar and Vocabulary.",
+      "question_types": [
+        "fill-in-the-blank",
+        "multiple-choice",
+        "verb-conjugation",
+        "word-choice",
+        "word-ending"
+      ],
+      "typical_prompt_style": "Fill in the blanks in the following text, using the prepositions given in the box. Use each preposition only once. There is one preposition extra. OR Fill in each blank with the correct form of the verb given within brackets. OR Underline the most appropriate word from those given within brackets to fill in the blanks in the following text. OR Underline the correct word-ending, selecting from those given within brackets."
+    },
+    {
+      "id": "partB",
+      "title": "PART B — READING and WRITING",
+      "marks": 25,
+      "instructions": "Answer all questions in this section related to Reading and Writing.",
+      "question_types": [
+        "multiple-choice",
+        "sentence-meaning",
+        "reading-comprehension",
+        "true-false-not-given",
+        "paragraph-writing"
+      ],
+      "typical_prompt_style": "Underline the option that best expresses the meaning of each of the sentences given below in bold print. OR Read the following four news items and answer the questions (I) and (II). (I) Underline the most appropriate response in each of the questions from (1) - (5). (II) Do the following statements agree with the information given in the above news items? In boxes (6) - (10), write True, False or Not Given. OR Write a paragraph beginning with the given sentence. Use about 75 - 100 words. Do not exceed the word limit. Do not write more than one paragraph. [BLANK]"
+    }
+  ]
+}
