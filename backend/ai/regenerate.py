@@ -1,5 +1,5 @@
 """
-PBI-13 / PBI-19 — Per-question regeneration.
+PBI-13 / PBI-19 / PBI-23 — Per-question regeneration.
 
 Public API:
     from ai.regenerate import regenerate_question
@@ -73,7 +73,8 @@ PAPER TONE
 {nudge_block}
 HARD CONSTRAINTS
 - id must equal "{question_id}" exactly.
-- marks must equal {marks} exactly.
+- marks must equal {marks} exactly. Preserve the question's mark value to within \
+  ±2 of the original; the backend will overwrite values outside this range with {marks}.
 - number must equal "{number}" exactly (keep the display number unchanged).
 - type should remain "{q_type}" unless the nudge explicitly requests a change.
 - prompt must be non-empty and complete — no placeholder text.
