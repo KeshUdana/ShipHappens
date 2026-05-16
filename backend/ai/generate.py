@@ -1,5 +1,5 @@
 """
-PBI-12 — Paper generation.
+PBI-12 / PBI-19 — Paper generation.
 
 Public API:
     from ai.generate import generate_paper
@@ -7,12 +7,7 @@ Public API:
 
     paper: PaperSchema = generate_paper(blueprint, file_uris)
 
-The function takes:
-  - blueprint:   A validated BlueprintSchema (output of PBI-07).
-  - file_uris:   Gemini Files API URIs of the source PDFs (for style context
-                 and content avoidance — already uploaded by the storage adapter).
-
-Uses gemini-2.5-pro for maximum quality.
+Uses gemini-2.5-pro (auto-falls back to flash on free-tier quota exhaustion).
 """
 
 from __future__ import annotations
@@ -22,46 +17,65 @@ import logging
 from collections import Counter
 
 from google.genai import types
-from pydantic import ValidationError
 
-from ai.client import client, pro_model, fast_model
+from ai.client import client, fast_model, pro_model
 from ai.schemas import BlueprintSchema, PaperSchema
+from ai.wrapper import call_structured
 
 logger = logging.getLogger(__name__)
 
+
 # ── Prompt ──────────────────────────────────────────────────────────────────
+#
+# Prompt-polish notes (PBI-19):
+# - Added explicit section-marks accounting table in the prompt so the model
+#   can plan marks distribution before writing questions.
+# - Tightened context-passage instructions: cultural relevance, no fiction tropes.
+# - Added sub-parts marks-sum rule explicitly.
+# - Clarified that section ids in the output MUST match blueprint section ids.
 
 _PROMPT_TEMPLATE = """\
 You are an expert {level} {subject} exam paper writer working for {board}.
 
 TASK
-Generate a COMPLETE, BRAND-NEW examination paper that strictly follows the
-BLUEPRINT provided below.  The source PDFs attached are for STYLE REFERENCE
-and CONTENT AVOIDANCE only — do not reproduce any text, passages, or questions
-from them.
+Generate a COMPLETE, BRAND-NEW examination paper that strictly follows the BLUEPRINT below. \
+The source PDFs (if attached) are for STYLE REFERENCE and CONTENT AVOIDANCE only — do not \
+reproduce any text, passages, or questions from them.
 
 BLUEPRINT
 {blueprint_json}
 
-HARD CONSTRAINTS — violating any of these will cause an automated rejection:
-1. Section structure: produce EXACTLY {num_sections} section(s), with the same id and title as the blueprint.
-2. Marks per section: questions within each section must sum to exactly that section's marks value.
-3. Total marks: the sum across all sections must equal exactly {total_marks}.
-4. Question IDs: every question.id must be UNIQUE across the whole paper.
-         Use the format  s<section_index>q<question_index>  (e.g. s0q0, s0q1, s1q0).
-5. No empty fields: every question must have a non-empty prompt.
-6. Context passages: for any question of type reading_comprehension_*, fill-in-the-blank_from_passage,
-   vocabulary_in_context_*, or pronoun_reference, set context_passage to a self-contained
-   paragraph of 80-150 words appropriate for the level.
-7. Tone: follow tone_notes exactly — register, vocabulary level, passage topics.
-8. Question wording: model each question's wording closely on the typical_prompt_style
-   of its section, replacing [BLANK] with concrete content.
-9. Sub-parts: if a question is naturally split (e.g. (a), (b), (c)), populate sub_parts
-   and set the parent question's marks to the sum of sub-part marks.
-10. Output ONLY valid JSON matching the PaperSchema — no markdown fences, no commentary.
+MARKS PLAN (you MUST hit these exactly)
+{marks_plan}
+Total: {total_marks} marks
 
-PAPER TITLE FORMAT: "{subject} — {level} Mock Paper"
+HARD CONSTRAINTS — an automated validator will reject any violation:
+1. Sections: output EXACTLY {num_sections} section(s). Each section id and title must match \
+   the blueprint exactly.
+2. Marks per section: questions in each section must sum to exactly that section's marks (see \
+   MARKS PLAN above).
+3. Total marks: sum across ALL sections = {total_marks}. Not one mark more or less.
+4. Question IDs: every question.id must be UNIQUE. Use format s<section_idx>q<q_idx> \
+   (e.g. s0q0, s0q1, s1q0). Section index starts at 0.
+5. No empty fields: every question.prompt must be non-empty, meaningful text.
+6. Context passages: for question types reading_comprehension_*, fill-in-the-blank_from_passage, \
+   vocabulary_in_context_*, pronoun_reference — set context_passage to a self-contained \
+   paragraph of 80–150 words. Use topics that are culturally appropriate (education, \
+   environment, society, science, current events). Avoid fantasy or fiction tropes.
+7. Sub-parts: if a question is split into (a)(b)(c) etc., populate sub_parts and ensure \
+   their marks sum to the parent question's marks.
+8. Tone: follow tone_notes — formal academic register, A-Level / O-Level appropriate vocabulary.
+9. Wording: model each question closely on the typical_prompt_style of its section, \
+   replacing [BLANK] with concrete content appropriate to the topic.
+10. Output ONLY valid JSON matching PaperSchema. No markdown fences. No text outside the JSON.
+
+PAPER TITLE: "{subject} — {level} Mock Paper"
 """
+
+
+def _marks_plan(blueprint: BlueprintSchema) -> str:
+    lines = [f"  {s.id}: {s.marks} marks ({s.title})" for s in blueprint.sections]
+    return "\n".join(lines)
 
 
 def _build_prompt(blueprint: BlueprintSchema) -> str:
@@ -70,12 +84,14 @@ def _build_prompt(blueprint: BlueprintSchema) -> str:
         subject=blueprint.subject,
         board=blueprint.board,
         blueprint_json=json.dumps(blueprint.model_dump(), indent=2, ensure_ascii=False),
+        marks_plan=_marks_plan(blueprint),
         num_sections=len(blueprint.sections),
         total_marks=blueprint.total_marks,
     )
 
 
-# ── Post-generation validation ───────────────────────────────────────────────
+# ── Post-generation validation ────────────────────────────────────────────────
+
 
 class PaperValidationError(ValueError):
     """Raised when the generated paper fails hard-constraint checks."""
@@ -83,132 +99,85 @@ class PaperValidationError(ValueError):
 
 def _validate_paper(paper: PaperSchema, blueprint: BlueprintSchema) -> None:
     """
-    Check hard constraints that Gemini structured output cannot guarantee.
-    Raises PaperValidationError with a descriptive message on first violation.
+    Domain checks that Pydantic cannot enforce.
+    Raises PaperValidationError (a ValueError subclass) to trigger a wrapper retry.
     """
     errors: list[str] = []
 
-    # 1. Section count
     if len(paper.sections) != len(blueprint.sections):
         errors.append(
-            f"Section count mismatch: expected {len(blueprint.sections)}, "
-            f"got {len(paper.sections)}"
+            f"Section count: expected {len(blueprint.sections)}, got {len(paper.sections)}"
         )
 
-    # 2. Total marks
     all_questions = [q for sec in paper.sections for q in sec.questions]
+
     actual_total = sum(q.marks for q in all_questions)
     if actual_total != blueprint.total_marks:
         errors.append(
-            f"Total marks mismatch: expected {blueprint.total_marks}, "
-            f"got {actual_total}"
+            f"Total marks: expected {blueprint.total_marks}, got {actual_total}"
         )
 
-    # 3. Per-section marks
-    bp_section_marks = {s.id: s.marks for s in blueprint.sections}
+    bp_marks = {s.id: s.marks for s in blueprint.sections}
     for sec in paper.sections:
-        expected = bp_section_marks.get(sec.id)
+        expected = bp_marks.get(sec.id)
         actual = sum(q.marks for q in sec.questions)
         if expected is not None and actual != expected:
             errors.append(
-                f"Section '{sec.id}' marks mismatch: expected {expected}, got {actual}"
+                f"Section '{sec.id}': expected {expected} marks, got {actual}"
             )
 
-    # 4. Unique question IDs
-    all_ids = [q.id for q in all_questions]
-    dupes = [qid for qid, count in Counter(all_ids).items() if count > 1]
+    dupes = [qid for qid, n in Counter(q.id for q in all_questions).items() if n > 1]
     if dupes:
         errors.append(f"Duplicate question IDs: {dupes}")
 
-    # 5. No empty prompts
     empty = [q.id for q in all_questions if not q.prompt.strip()]
     if empty:
-        errors.append(f"Questions with empty prompts: {empty}")
+        errors.append(f"Empty prompts on: {empty}")
 
     if errors:
         raise PaperValidationError(
-            f"Paper failed {len(errors)} constraint(s):\n" + "\n".join(f"  - {e}" for e in errors)
+            f"Paper failed {len(errors)} constraint(s):\n"
+            + "\n".join(f"  - {e}" for e in errors)
         )
 
 
-# ── Retry wrapper ────────────────────────────────────────────────────────────
-
-_MAX_RETRIES = 1  # 2 attempts total (initial + 1 retry)
+# ── Model selection with quota fallback ──────────────────────────────────────
 
 
-def _call_with_retry(
-    file_parts: list[types.Part],
-    prompt: str,
-    blueprint: BlueprintSchema,
+def _pick_model_and_generate(
+    contents: list, blueprint: BlueprintSchema
 ) -> PaperSchema:
-    last_exc: Exception | None = None
-
-    # Try pro first; if quota-exhausted (429), fall back to fast model.
-    models_to_try = [pro_model, fast_model] if pro_model != fast_model else [fast_model]
-
-    for attempt in range(1, _MAX_RETRIES + 2):
-        # On retry, we may have already switched to fast_model due to quota
-        current_model = models_to_try[min(attempt - 1, len(models_to_try) - 1)]
-        logger.info(
-            "[generate] Attempt %d / %d — calling %s (this may take 30-90s)...",
-            attempt,
-            _MAX_RETRIES + 1,
-            current_model,
-        )
-
-        raw = ""
+    """
+    Try pro_model first; on 429 quota exhaustion fall back to fast_model.
+    Each model attempt uses call_structured (handles parse retries).
+    """
+    for model in ([pro_model, fast_model] if pro_model != fast_model else [fast_model]):
         try:
-            response = client.models.generate_content(
-                model=current_model,
-                contents=[*file_parts, prompt],
-                config=types.GenerateContentConfig(
-                    response_mime_type="application/json",
-                    response_schema=PaperSchema,
-                ),
+            return call_structured(
+                model=model,
+                contents=contents,
+                schema=PaperSchema,
+                retries=1,
+                label="generate",
+                post_validate=lambda p: _validate_paper(p, blueprint),
             )
-            raw = response.text
-            logger.debug("[generate] Raw response (%d chars):\n%s", len(raw), raw)
-
-            paper = PaperSchema.model_validate_json(raw)
-            _validate_paper(paper, blueprint)
-
-            if attempt > 1:
-                logger.info("[generate] Succeeded on attempt %d.", attempt)
-            return paper
-
-        except (ValidationError, PaperValidationError, ValueError) as exc:
-            last_exc = exc
-            logger.warning(
-                "[generate] Validation failure on attempt %d: %s\nRaw text was:\n%s",
-                attempt,
-                exc,
-                raw,
-            )
-
         except Exception as exc:
-            last_exc = exc
-            err_str = str(exc)
-            if "429" in err_str or "RESOURCE_EXHAUSTED" in err_str:
+            err = str(exc)
+            if "429" in err or "RESOURCE_EXHAUSTED" in err:
                 logger.warning(
-                    "[generate] Quota exhausted on %s (attempt %d). "
-                    "Falling back to %s on next attempt.",
-                    current_model,
-                    attempt,
+                    "[generate] Quota exhausted on %s, falling back to %s.",
+                    model,
                     fast_model,
                 )
-                # Force fast_model for all remaining attempts
-                models_to_try = [fast_model] * len(models_to_try)
-                print(f"[generate] Quota hit on {current_model}, retrying with {fast_model}...")
-            else:
-                raise
+                if model == fast_model:
+                    raise  # already on fallback, nothing left to try
+                continue
+            raise
 
-    raise RuntimeError(
-        f"Paper generation failed after {_MAX_RETRIES + 1} attempt(s). "
-        f"Last error: {last_exc}"
-    ) from last_exc
+    raise RuntimeError("[generate] All models exhausted.")
 
 
-# ── Public API ───────────────────────────────────────────────────────────────
+# ── Public API ────────────────────────────────────────────────────────────────
 
 
 def generate_paper(blueprint: BlueprintSchema, file_uris: list[str]) -> PaperSchema:
@@ -217,22 +186,18 @@ def generate_paper(blueprint: BlueprintSchema, file_uris: list[str]) -> PaperSch
 
     Args:
         blueprint:   Validated BlueprintSchema (from extract_blueprint).
-        file_uris:   Gemini Files API URIs of the source PDFs.
-                     Used as style context and for content avoidance.
-                     Pass an empty list if no source files are available.
+        file_uris:   Gemini Files API URIs of the source PDFs (style context +
+                     content avoidance). Pass [] if no source files are available.
 
     Returns:
-        A validated PaperSchema instance (see ai/schemas.py §4.3).
-
-    Raises:
-        RuntimeError: If all retry attempts fail post-validation.
+        A validated PaperSchema (ai/schemas.py §4.3) with marks verified.
     """
-    file_parts = [
+    contents: list = [
         types.Part.from_uri(file_uri=uri, mime_type="application/pdf")
         for uri in file_uris
     ]
+    contents.append(_build_prompt(blueprint))
 
-    prompt = _build_prompt(blueprint)
     logger.info(
         "[generate] Generating paper: subject=%r  sections=%d  total_marks=%d",
         blueprint.subject,
@@ -240,14 +205,12 @@ def generate_paper(blueprint: BlueprintSchema, file_uris: list[str]) -> PaperSch
         blueprint.total_marks,
     )
 
-    paper = _call_with_retry(file_parts, prompt, blueprint)
+    paper = _pick_model_and_generate(contents, blueprint)
 
-    q_count = sum(len(s.questions) for s in paper.sections)
     logger.info(
-        "[generate] Done: title=%r  sections=%d  questions=%d  marks=%d",
+        "[generate] Done: title=%r  questions=%d  marks=%d",
         paper.title,
-        len(paper.sections),
-        q_count,
+        sum(len(s.questions) for s in paper.sections),
         paper.total_marks,
     )
     return paper
