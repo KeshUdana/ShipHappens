@@ -85,6 +85,15 @@ class Question(BaseModel):
         default=None,
         description="Optional reading passage shown above the question",
     )
+    difficulty: int = Field(
+        default=3,
+        ge=1,
+        le=5,
+        description=(
+            "Estimated difficulty 1-5 (1=easy recall, 3=standard, 5=challenging). "
+            "Used by the FE to display a balanced-paper indicator."
+        ),
+    )
 
 
 class SectionPaper(BaseModel):
@@ -108,3 +117,67 @@ class PaperSchema(BaseModel):
     total_marks: int
     instructions: list[str] = Field(description="Cover-page instructions, in order")
     sections: list[SectionPaper]
+
+
+# ── §4.4  Answer Key (AI → teacher) ─────────────────────────────────────────
+
+
+class SubPartAnswer(BaseModel):
+    label: str = Field(description="Matches SubPart.label, e.g. '(a)'")
+    model_answer: str
+    marks: int
+
+
+class QuestionAnswer(BaseModel):
+    """Model answer + marking criteria for one Question."""
+
+    question_id: str = Field(description="Matches Question.id exactly")
+    model_answer: str = Field(
+        description=(
+            "The expected best answer. For open-ended questions, a high-band exemplar; "
+            "for fill-in-the-blank / MCQ, the exact correct option(s)."
+        )
+    )
+    marking_criteria: list[str] = Field(
+        description=(
+            "Bullet points describing how to award marks. "
+            "E.g. ['1 mark for correct verb form', '1 mark for subject-verb agreement']."
+        )
+    )
+    sub_part_answers: list[SubPartAnswer] = Field(
+        default_factory=list,
+        description="One entry per SubPart on the source Question (empty if no sub-parts).",
+    )
+    common_mistakes: list[str] = Field(
+        default_factory=list,
+        description="Typical errors candidates make for this question type.",
+    )
+
+
+class SectionAnswerKey(BaseModel):
+    section_id: str
+    section_title: str
+    answers: list[QuestionAnswer]
+
+
+class AnswerKeySchema(BaseModel):
+    """
+    §4.4 — Answer key + marking scheme for a generated paper.
+    Maps 1:1 against PaperSchema by ids.
+    """
+
+    paper_title: str
+    total_marks: int
+    sections: list[SectionAnswerKey]
+
+
+# ── Dedup warning shape (FE display) ────────────────────────────────────────
+
+
+class DuplicateWarning(BaseModel):
+    """One potential overlap between a generated question and the source PDFs."""
+
+    question_id: str
+    similarity: float = Field(ge=0.0, le=1.0)
+    matched_source_snippet: str = Field(description="The source text fragment that closely matches")
+    severity: str = Field(description="'high' (>=0.9), 'medium' (0.8-0.9), 'low' (<0.8)")

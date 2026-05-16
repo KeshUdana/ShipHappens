@@ -130,6 +130,7 @@
     <li><a href="#timeline">Timeline</a></li>
     <li><a href="#config">Config</a></li>
     <li><a href="#risks">Risks &amp; Cuts</a></li>
+    <li><a href="#v02-ai">v0.2 AI</a></li>
     <li><a href="#terms">Glossary</a></li>
   </ul>
 </nav>
@@ -153,7 +154,8 @@
 
   <div class="callout callout-warning">
     <div class="callout-title">MVP Scope</div>
-    <p>This is a proof of concept for a 20-hour buildathon. <strong>Out of scope:</strong> authentication, multi-tenant separation, vector search / RAG, per-section regeneration, server-rendered PDF (we use the browser's print dialog), email export, paper history, and curriculum-aware difficulty calibration. Demo content is A-Level English; the architecture is subject-agnostic.</p>
+    <p>This is a proof of concept for a 20-hour buildathon. <strong>Out of scope:</strong> authentication, multi-tenant separation, full retrieval-augmented generation across a multi-session question bank, server-rendered PDF (we use the browser's print dialog), email export, and paper history. Demo content is A-Level English; the architecture is subject-agnostic.</p>
+    <p style="margin-top:8px"><strong>In scope (v0.2 AI enhancements — see §12):</strong> answer-key generation, embedding-based source-paper duplicate guard (pgvector-backed), live SSE streaming of paper generation, per-section regeneration, per-question difficulty scoring (1–5), and per-call cost / token tracking.</p>
   </div>
 
   <h3>1.1 Stack at a Glance</h3>
@@ -618,10 +620,38 @@ class Paper(SQLModel, table=True):
         </tr>
         <tr>
           <td><span class="method-badge method-post">POST</span></td>
-          <td><code>/sessions/:id/questions/:qid/regenerate</code></td>
+          <td><code>/sessions/:id/regenerate/question</code></td>
           <td><span class="owner-pill fs1">FS1</span> + <span class="owner-pill ai">AI</span></td>
-          <td><code>{ nudge?: string }</code></td>
+          <td><code>{ paper, blueprint, question_id, nudge? }</code></td>
           <td><code>{ question: Question }</code></td>
+        </tr>
+        <tr>
+          <td><span class="method-badge method-post">POST</span></td>
+          <td><code>/sessions/:id/regenerate/section</code> <em>(v0.2)</em></td>
+          <td><span class="owner-pill ai">AI</span></td>
+          <td><code>{ paper, blueprint, section_id, nudge? }</code></td>
+          <td><code>{ section: SectionPaper }</code></td>
+        </tr>
+        <tr>
+          <td><span class="method-badge method-post">POST</span></td>
+          <td><code>/sessions/:id/answer-key</code> <em>(v0.2)</em></td>
+          <td><span class="owner-pill ai">AI</span></td>
+          <td><code>{ paper: PaperSchema }</code></td>
+          <td><code>AnswerKeySchema</code></td>
+        </tr>
+        <tr>
+          <td><span class="method-badge method-post">POST</span></td>
+          <td><code>/sessions/:id/dedup</code> <em>(v0.2)</em></td>
+          <td><span class="owner-pill ai">AI</span></td>
+          <td><code>{ paper, threshold?: 0.80 }</code></td>
+          <td><code>{ warnings: DuplicateWarning[] }</code></td>
+        </tr>
+        <tr>
+          <td><span class="method-badge method-post">POST</span></td>
+          <td><code>/sessions/:id/generate/stream</code> <em>(v0.2)</em></td>
+          <td><span class="owner-pill ai">AI</span></td>
+          <td><code>{ blueprint: BlueprintSchema }</code></td>
+          <td><code>text/event-stream</code> · SSE: start → chunk → section → complete</td>
         </tr>
         <tr>
           <td><span class="method-badge method-get">GET</span></td>
@@ -937,13 +967,104 @@ gantt
 
   <h3>10.2 Scope Cuts (in priority order if we slip)</h3>
   <ol style="margin-left: 20px; color: var(--ink-muted);">
-    <li>Drop per-section regenerate (keep per-question only).</li>
+    <li>Drop v0.2 SSE streaming — use the synchronous <code>/generate</code> endpoint with a spinner.</li>
+    <li>Drop v0.2 dedup guard — the source PDFs are private to the session anyway.</li>
+    <li>Drop v0.2 per-section regenerate (keep per-question only).</li>
     <li>Drop Blueprint Review step — go Upload → generated Paper directly; show the blueprint collapsed above the paper.</li>
     <li>Drop autosave on edit (require explicit "Save" button).</li>
     <li>Drop per-question regenerate (text edits only).</li>
     <li>Drop styling on PDF export (plain HTML print is acceptable for demo).</li>
     <li>Drop the optional "nudge" input on regenerate (just regenerate without it).</li>
   </ol>
+</section>
+
+<!-- ============================================ -->
+<section id="v02-ai">
+  <h2>12. v0.2 AI Enhancements</h2>
+  <p class="section-lead">Built after the core MVP shipped. All six features ride the same <code>ai/wrapper.py:call_structured</code> entry point and reuse the schemas in <code>ai/schemas.py</code>. None of them block the h8 / h14 / h18 vertical slices.</p>
+
+  <div class="table-wrap data-table">
+    <table>
+      <thead><tr><th>#</th><th>Feature</th><th>Backend module</th><th>Route</th><th>Why it matters</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td><strong>Answer key + marking scheme</strong></td>
+          <td><code>ai/answer_key.py</code></td>
+          <td><code>POST /sessions/:id/answer-key</code></td>
+          <td>Teachers want this more than the paper itself. One <code>gemini-2.5-flash</code> call returns model answers, mark-by-mark criteria, and common mistakes for every question, mapped 1:1 by <code>question_id</code>.</td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td><strong>Embedding-based duplicate guard</strong></td>
+          <td><code>ai/dedup.py</code></td>
+          <td><code>POST /sessions/:id/dedup</code></td>
+          <td>Catches the demo-killer "you copied question 3 verbatim". Extracts paragraph-sized chunks from the source PDFs (via pymupdf), embeds them and every generated question with <code>text-embedding-004</code>, flags cosine similarity ≥ 0.80 (medium) / ≥ 0.90 (high). pgvector-ready for cross-session persistence.</td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td><strong>SSE streaming generation</strong></td>
+          <td><code>ai/generate.py:generate_paper_stream</code></td>
+          <td><code>POST /sessions/:id/generate/stream</code></td>
+          <td>Turns the 30–90s pro-model call from "infinite spinner" into a live progress feed. Emits <code>start → chunk → section → complete</code> events; FE consumes via <code>EventSource</code> and shows "Section A done…", "Section B done…".</td>
+        </tr>
+        <tr>
+          <td>4</td>
+          <td><strong>Per-section regeneration</strong></td>
+          <td><code>ai/regenerate.py:regenerate_section</code></td>
+          <td><code>POST /sessions/:id/regenerate/section</code></td>
+          <td>Mirror of per-question regenerate, scoped to a whole section. Preserves section id / marks / question count and every question's id and marks. Closes the editing UX gap.</td>
+        </tr>
+        <tr>
+          <td>5</td>
+          <td><strong>Difficulty score per question (1–5)</strong></td>
+          <td><code>ai/schemas.py</code> + generate prompt</td>
+          <td><em>schema field</em></td>
+          <td>Each <code>Question</code> gains a <code>difficulty</code> field (1=trivial, 3=standard A-Level, 5=stretch). Asked for in the same generate call (no extra API hit). FE can render a balanced-paper indicator.</td>
+        </tr>
+        <tr>
+          <td>6</td>
+          <td><strong>Token / cost tracking</strong></td>
+          <td><code>ai/wrapper.py</code> → <code>api_usage_log</code></td>
+          <td><em>infra</em></td>
+          <td>Every <code>call_structured</code> call accepts an <code>on_usage</code> callback. Wrapper extracts <code>response.usage_metadata</code>, applies model-specific pricing, and emits a <code>UsageRecord</code>. Persisted to the existing <code>api_usage_log</code> table — free observability for the demo cost breakdown.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>12.1 Schema additions</h3>
+  <pre><code>// §4.4 AnswerKeySchema
+{
+  "paper_title": "General English — A Level Mock Paper",
+  "total_marks": 200,
+  "sections": [{
+    "section_id": "grammar_vocabulary",
+    "section_title": "Grammar and Vocabulary",
+    "answers": [{
+      "question_id": "s0q0",
+      "model_answer": "with, on, to, at, from",
+      "marking_criteria": ["1 mark per correct preposition", "No marks if more than one preposition is given"],
+      "sub_part_answers": [],
+      "common_mistakes": ["Confusing 'at' and 'in' for locations"]
+    }]
+  }]
+}
+
+// DuplicateWarning (one entry per flagged question)
+{
+  "question_id": "s2q0",
+  "similarity": 0.93,
+  "matched_source_snippet": "The annual school concert will be held next month...",
+  "severity": "high"   // "high" >=0.90 · "medium" 0.80-0.90 · "low" <0.80
+}
+
+// Question.difficulty added
+{ "id": "s0q0", "marks": 5, "type": "fill-in-the-blank", "prompt": "...", "difficulty": 2 }</code></pre>
+
+  <h3>12.2 Why we did not implement "proper" RAG</h3>
+  <p>RAG retrieves relevant chunks from a large corpus. Our corpus is <strong>3–5 PDFs that fit in Gemini's 2M-token context</strong>. Passing the whole files via the Gemini Files API is strictly better here because blueprint extraction and paper generation both need the full document structure — chunked retrieval would lose tone, format coherence, and section boundaries. The duplicate-guard module (#2) does use embeddings, but only as a similarity check against locally-extracted source text, not as a retrieval step in the generation prompt.</p>
+  <p>RAG <em>would</em> make sense once we have: a multi-session question bank to retrieve "similar past questions to avoid", a curriculum / syllabus document to retrieve learning objectives, or a multi-year archive of past papers to find the closest exam to a teacher's spec. None of these exist in the v0.2 cut.</p>
 </section>
 
 <!-- ============================================ -->
@@ -972,7 +1093,7 @@ gantt
 
 <footer>
   <p><strong>ShipHappens — Smart Paper Generator · Build Plan v0.1</strong></p>
-  <p class="disclaimer">Demo subject is A-Level English; architecture is subject-agnostic. Authentication, vector search, per-section regeneration, server-rendered PDF, and curriculum-aware difficulty calibration are deliberately out of scope for the 20-hour MVP and tracked for v0.2.</p>
+  <p class="disclaimer">Demo subject is A-Level English; architecture is subject-agnostic. Authentication, multi-tenant separation, full cross-session RAG, server-rendered PDF, and curriculum alignment are deliberately out of scope for the 20-hour MVP. The v0.2 AI enhancements (answer keys, dedup guard, streaming, per-section regenerate, difficulty scoring, cost tracking) are in scope and shipped — see §12.</p>
 </footer>
 
 <script>

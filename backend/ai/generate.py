@@ -15,12 +15,13 @@ from __future__ import annotations
 import json
 import logging
 from collections import Counter
+from typing import Iterator
 
 from google.genai import types
 
 from ai.client import client, fast_model, pro_model
 from ai.schemas import BlueprintSchema, PaperSchema
-from ai.wrapper import call_structured
+from ai.wrapper import OnUsage, call_structured
 
 logger = logging.getLogger(__name__)
 
@@ -70,6 +71,10 @@ HARD CONSTRAINTS — an automated validator will reject any violation:
 9. Wording: model each question closely on the typical_prompt_style of its section, \
    replacing [BLANK] with concrete content appropriate to the topic.
 10. Output ONLY valid JSON matching PaperSchema. No markdown fences. No text outside the JSON.
+11. Difficulty rating: for each question, set difficulty (1-5):
+    1 = trivial recall, 2 = easy, 3 = standard A-Level / O-Level expected difficulty,
+    4 = challenging, 5 = top-band stretch.
+    Aim for a balanced distribution: most questions at 2-3, a few at 4-5 toward the end.
 
 PAPER TITLE: "{subject} — {level} Mock Paper"
 """
@@ -267,3 +272,91 @@ def generate_paper(blueprint: BlueprintSchema, file_uris: list[str]) -> PaperSch
         paper.total_marks,
     )
     return paper
+
+
+# ── Feature #3: Streaming paper generation ───────────────────────────────────
+#
+# Yields progress events as the model generates the paper. The FE consumes
+# these via Server-Sent Events to show "Section A done...", "Section B done..."
+# instead of an infinite spinner.
+#
+# Event shapes (each yielded as a dict):
+#   {"event": "start",    "model": "gemini-2.5-pro"}
+#   {"event": "chunk",    "chars": 1234, "section_hint": "secA"}    # progress tick
+#   {"event": "section",  "section_id": "secA", "title": "..."}     # detected a section
+#   {"event": "complete", "paper": {...}}                            # final validated paper
+#   {"event": "error",    "message": "..."}                          # fatal failure
+
+
+def generate_paper_stream(
+    blueprint: BlueprintSchema,
+    file_uris: list[str],
+) -> Iterator[dict]:
+    """
+    Generator version of generate_paper. Yields progress events suitable for SSE.
+
+    The function streams raw JSON text from Gemini and detects section
+    completions heuristically (looking for new `"id": "..."` keys in the JSON
+    text). When the stream finishes, it parses and validates the full result.
+    """
+    contents: list = [
+        types.Part.from_uri(file_uri=uri, mime_type="application/pdf")
+        for uri in file_uris
+    ]
+    contents.append(_build_prompt(blueprint))
+
+    # Use fast_model for streaming (pro is often quota-limited)
+    model = fast_model
+
+    yield {"event": "start", "model": model}
+    logger.info("[generate_stream] Starting stream with %s", model)
+
+    buffer = ""
+    section_ids_seen: set[str] = set()
+    blueprint_section_ids = {s.id: s.title for s in blueprint.sections}
+
+    try:
+        stream = client.models.generate_content_stream(
+            model=model,
+            contents=contents,
+            config=types.GenerateContentConfig(
+                response_mime_type="application/json",
+                response_schema=PaperSchema,
+            ),
+        )
+
+        for chunk in stream:
+            text = getattr(chunk, "text", None)
+            if not text:
+                continue
+            buffer += text
+
+            # Detect newly-emitted sections by scanning for blueprint ids
+            for sid, title in blueprint_section_ids.items():
+                if sid in section_ids_seen:
+                    continue
+                if f'"{sid}"' in buffer:
+                    section_ids_seen.add(sid)
+                    yield {"event": "section", "section_id": sid, "title": title}
+
+            yield {
+                "event": "chunk",
+                "chars": len(buffer),
+                "sections_seen": len(section_ids_seen),
+            }
+
+        # Stream complete — parse final result
+        paper = PaperSchema.model_validate_json(buffer)
+
+        # Run domain validation but don't fail the stream on minor drift
+        try:
+            _validate_paper(paper, blueprint)
+        except PaperValidationError as exc:
+            yield {"event": "warning", "message": str(exc)}
+
+        yield {"event": "complete", "paper": paper.model_dump()}
+        logger.info("[generate_stream] Done: %d chars, %d sections", len(buffer), len(section_ids_seen))
+
+    except Exception as exc:
+        logger.exception("[generate_stream] Failed")
+        yield {"event": "error", "message": str(exc)}

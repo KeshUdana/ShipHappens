@@ -17,8 +17,8 @@ import logging
 from typing import Optional
 
 from ai.client import fast_model
-from ai.schemas import BlueprintSchema, PaperSchema, Question, SectionBlueprint
-from ai.wrapper import call_structured
+from ai.schemas import BlueprintSchema, PaperSchema, Question, SectionBlueprint, SectionPaper
+from ai.wrapper import OnUsage, call_structured
 
 logger = logging.getLogger(__name__)
 
@@ -145,6 +145,8 @@ def regenerate_question(
     blueprint: BlueprintSchema,
     question_id: str,
     nudge: Optional[str] = None,
+    *,
+    on_usage: Optional[OnUsage] = None,
 ) -> Question:
     """
     Regenerate a single question and return the replacement object.
@@ -179,8 +181,144 @@ def regenerate_question(
         schema=Question,
         retries=1,
         label="regenerate",
+        on_usage=on_usage,
     )
 
     new_q = _fixup(raw_q, original, question_id)
     logger.info("[regenerate] Done: id=%r  type=%r  marks=%d", new_q.id, new_q.type, new_q.marks)
     return new_q
+
+
+# ── Feature #4: Per-section regeneration ─────────────────────────────────────
+
+_SECTION_PROMPT_TEMPLATE = """\
+You are an expert {level} {subject} exam paper writer.
+
+TASK
+Regenerate the entire section below with BRAND-NEW questions. Keep the section
+id, title, marks, and question count the same. Use different topics, vocabulary,
+and passages than the original section.
+
+ORIGINAL SECTION
+{section_json}
+
+SECTION BLUEPRINT
+Title:           {section_title}
+Total marks:     {section_marks}
+Question types:  {question_types}
+Wording style:   {typical_prompt_style}
+
+PAPER TONE
+{tone_notes}
+{nudge_block}
+HARD CONSTRAINTS
+- section.id must equal "{section_id}" exactly.
+- section.marks must equal {section_marks} exactly.
+- Question count must equal {n_questions}.
+- Every question.id must match the original question ids in order:
+  {original_ids}
+- Each question.marks must equal the original question's marks (in order):
+  {original_marks_seq}
+- Each question.number must match the original (kept stable for printing).
+- Sum of all question.marks must equal {section_marks}.
+- difficulty for each question: 1-5, aim for a balanced distribution.
+- Output ONLY a JSON object matching the SectionPaper schema. No markdown.
+"""
+
+
+def _find_section(paper: PaperSchema, section_id: str) -> SectionPaper:
+    for sec in paper.sections:
+        if sec.id == section_id:
+            return sec
+    valid = [s.id for s in paper.sections]
+    raise ValueError(f"Section '{section_id}' not found. Valid IDs: {valid}")
+
+
+def _validate_regenerated_section(
+    new_sec: SectionPaper, original: SectionPaper, section_id: str
+) -> None:
+    errors: list[str] = []
+    if new_sec.id != section_id:
+        errors.append(f"id mismatch: expected {section_id!r}, got {new_sec.id!r}")
+    if new_sec.marks != original.marks:
+        errors.append(f"section marks: expected {original.marks}, got {new_sec.marks}")
+    if len(new_sec.questions) != len(original.questions):
+        errors.append(
+            f"question count: expected {len(original.questions)}, got {len(new_sec.questions)}"
+        )
+
+    actual_sum = sum(q.marks for q in new_sec.questions)
+    if actual_sum != original.marks:
+        errors.append(f"question marks sum: expected {original.marks}, got {actual_sum}")
+
+    if errors:
+        raise ValueError(
+            f"Section regeneration failed {len(errors)} check(s):\n"
+            + "\n".join(f"  - {e}" for e in errors)
+        )
+
+
+def regenerate_section(
+    paper: PaperSchema,
+    blueprint: BlueprintSchema,
+    section_id: str,
+    nudge: Optional[str] = None,
+    *,
+    on_usage: Optional[OnUsage] = None,
+) -> SectionPaper:
+    """
+    Regenerate an entire section with new questions, preserving ids/marks/numbers.
+
+    Args:
+        paper:       Current paper.
+        blueprint:   Session's blueprint.
+        section_id:  Section to regenerate (must exist in paper).
+        nudge:       Optional teacher instruction.
+
+    Returns:
+        A new SectionPaper with the same id, marks, and question count as the
+        original, but with brand-new question content.
+    """
+    original = _find_section(paper, section_id)
+    section_bp = _find_section_blueprint(blueprint, section_id)
+
+    nudge_block = (
+        f"\nTEACHER NUDGE\n{nudge}\n(Honour this instruction across the whole section.)\n"
+        if nudge
+        else ""
+    )
+
+    prompt = _SECTION_PROMPT_TEMPLATE.format(
+        level=blueprint.level,
+        subject=blueprint.subject,
+        section_json=json.dumps(original.model_dump(), indent=2, ensure_ascii=False),
+        section_title=original.title,
+        section_marks=original.marks,
+        section_id=section_id,
+        n_questions=len(original.questions),
+        original_ids=[q.id for q in original.questions],
+        original_marks_seq=[q.marks for q in original.questions],
+        question_types=", ".join(section_bp.question_types) if section_bp else "varies",
+        typical_prompt_style=section_bp.typical_prompt_style if section_bp else "",
+        tone_notes=blueprint.tone_notes,
+        nudge_block=nudge_block,
+    )
+
+    logger.info(
+        "[regenerate_section] section=%r  questions=%d  marks=%d%s",
+        section_id, len(original.questions), original.marks,
+        f"  nudge={nudge!r}" if nudge else "",
+    )
+
+    new_sec = call_structured(
+        model=fast_model,
+        contents=[prompt],
+        schema=SectionPaper,
+        retries=1,
+        label="regenerate_section",
+        post_validate=lambda s: _validate_regenerated_section(s, original, section_id),
+        on_usage=on_usage,
+    )
+
+    logger.info("[regenerate_section] Done: %d new questions", len(new_sec.questions))
+    return new_sec
