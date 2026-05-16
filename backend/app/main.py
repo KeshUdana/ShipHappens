@@ -1,3 +1,10 @@
+from pathlib import Path
+
+from dotenv import load_dotenv
+
+# Load .env before any module reads env vars at import time.
+load_dotenv(Path(__file__).resolve().parents[1] / ".env", override=True)
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -6,7 +13,7 @@ from app.config import Settings
 from fastapi import APIRouter
 
 # routers
-from app.routers import sessions, sourcefiles, papers, generation, questions, style
+from app.routers import sessions, sourcefiles, papers, generation, questions, style, blueprint
 
 # Initialize settings
 settings = Settings()
@@ -61,6 +68,7 @@ async def health_check():
 # include routers
 app.include_router(sessions.router)
 app.include_router(sourcefiles.router)
+app.include_router(blueprint.router)
 app.include_router(papers.router)
 app.include_router(generation.router)
 app.include_router(questions.router)
