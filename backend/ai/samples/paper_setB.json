@@ -1,0 +1,297 @@
+{
+  "title": "General English — GCE Advanced Level Mock Paper",
+  "duration_minutes": 60,
+  "total_marks": 60,
+  "instructions": [
+    "Answer all questions on this paper itself.",
+    "Marks will be deducted for bad punctuation (Omission of full stops, capital letters, etc.) and for mistakes in basic grammar.",
+    "The supervisor will provide you with sheets for rough work."
+  ],
+  "sections": [
+    {
+      "id": "partA",
+      "title": "PART A — GRAMMAR and VOCABULARY",
+      "marks": 35,
+      "instructions": "Answer all questions in this section related to Grammar and Vocabulary.",
+      "questions": [
+        {
+          "id": "s0q0",
+          "number": "1",
+          "marks": 5,
+          "type": "fill-in-the-blank",
+          "prompt": "Fill in the blanks in the following text, using the prepositions given in the box. Use each preposition only once. There is one preposition extra.\n\nPrepositions: from, with, along, near, for, over",
+          "sub_parts": [
+            {
+              "label": "(1)",
+              "prompt": "The annual school fair attracted visitors ___ all corners of the town.",
+              "marks": 1
+            },
+            {
+              "label": "(2)",
+              "prompt": "Stalls were set up ___ the main path.",
+              "marks": 1
+            },
+            {
+              "label": "(3)",
+              "prompt": "Children played ___ balloons.",
+              "marks": 1
+            },
+            {
+              "label": "(4)",
+              "prompt": "The school principal stood proudly ___ the entrance.",
+              "marks": 1
+            },
+            {
+              "label": "(5)",
+              "prompt": "Donations poured in generously ___ the event.",
+              "marks": 1
+            }
+          ],
+          "context_passage": "The annual school fair was a huge success, attracting visitors from all corners of the town. Stalls were set up along the main path, offering various games and delicious treats. Children ran freely, laughing loudly as they played with balloons. The school principal stood proudly near the entrance, greeting everyone with a friendly smile. People gathered around the stage to watch the talent show. Donations poured in generously, ensuring the event would be even bigger next year."
+        },
+        {
+          "id": "s0q1",
+          "number": "2",
+          "marks": 5,
+          "type": "verb-conjugation",
+          "prompt": "Fill in each blank with the correct form of the verb given within brackets.",
+          "sub_parts": [
+            {
+              "label": "(1)",
+              "prompt": "A group of volunteers _______ (plan) a tree-planting campaign for months.",
+              "marks": 1
+            },
+            {
+              "label": "(2)",
+              "prompt": "They _______ (hope) to revitalize a neglected public park.",
+              "marks": 1
+            },
+            {
+              "label": "(3)",
+              "prompt": "Last Saturday, despite the early morning rain, a large crowd _______ (gather) at the park entrance.",
+              "marks": 1
+            },
+            {
+              "label": "(4)",
+              "prompt": "Before they _______ (begin) planting, the local mayor _______ (give) a short speech, emphasizing the importance of environmental conservation.",
+              "marks": 1
+            },
+            {
+              "label": "(5)",
+              "prompt": "Everyone _______ (feel) enthusiastic about contributing to their community.",
+              "marks": 1
+            }
+          ],
+          "context_passage": "A group of volunteers (1) _______ (plan) a tree-planting campaign for months. They (2) _______ (hope) to revitalize a neglected public park. Last Saturday, despite the early morning rain, a large crowd (3) _______ (gather) at the park entrance. Before they (4) _______ (begin) planting, the local mayor (5) _______ (give) a short speech, emphasizing the importance of environmental conservation. Everyone (6) _______ (feel) enthusiastic about contributing to their community."
+        },
+        {
+          "id": "s0q2",
+          "number": "3",
+          "marks": 5,
+          "type": "word-choice",
+          "prompt": "Underline the most appropriate word from those given within brackets to fill in the blanks in the following text.",
+          "sub_parts": [
+            {
+              "label": "(1)",
+              "prompt": "The new community center was a hub of (activity/ motion/ movement) for residents of all ages.",
+              "marks": 1
+            },
+            {
+              "label": "(2)",
+              "prompt": "It offered a wide (range/ scope/ spread) of workshops, from pottery to coding, attracting a diverse group of participants.",
+              "marks": 1
+            },
+            {
+              "label": "(3)",
+              "prompt": "Many local businesses had (contributed/ donated/ supplied) funds for its construction, recognizing its importance to the town's social fabric.",
+              "marks": 1
+            },
+            {
+              "label": "(4)",
+              "prompt": "The center aimed to (promote/ encourage/ advance) learning and interaction, fostering a strong sense of (unity/ solidarity/ cohesion) among neighbours.",
+              "marks": 1
+            },
+            {
+              "label": "(5)",
+              "prompt": "Its success was a testament to collaborative effort.",
+              "marks": 1
+            }
+          ],
+          "context_passage": "The new community center was a hub of (1) _______ (activity/ motion/ movement) for residents of all ages. It offered a wide (2) _______ (range/ scope/ spread) of workshops, from pottery to coding, attracting a diverse group of participants. Many local businesses had (3) _______ (contributed/ donated/ supplied) funds for its construction, recognizing its importance to the town's social fabric. The center aimed to (4) _______ (promote/ encourage/ advance) learning and interaction, fostering a strong sense of (5) _______ (unity/ solidarity/ cohesion) among neighbours. Its success was a testament to collaborative effort."
+        },
+        {
+          "id": "s0q3",
+          "number": "4",
+          "marks": 5,
+          "type": "word-ending",
+          "prompt": "Underline the correct word-ending, selecting from those given in brackets.",
+          "sub_parts": [
+            {
+              "label": "(1)",
+              "prompt": "The recent discovery of ancient artifacts has generated consider (able/ ably/ ation) excitement among archaeologists.",
+              "marks": 1
+            },
+            {
+              "label": "(2)",
+              "prompt": "These findings provide vital evidence about a previously unknown civiliza (tion/ tive/ tively).",
+              "marks": 1
+            },
+            {
+              "label": "(3)",
+              "prompt": "Researchers are now eager to conduct further explora (tion/ tory/ tive) studies in the region.",
+              "marks": 1
+            },
+            {
+              "label": "(4)",
+              "prompt": "The careful preserva (tion/ tive/ tor) of these relics is crucial for future scholarly investiga (tion/ tive/ tory).",
+              "marks": 1
+            },
+            {
+              "label": "(5)",
+              "prompt": "The team hopes to publish their findings soon, sharing their discov (ery/ eries/ ers) with the world.",
+              "marks": 1
+            }
+          ],
+          "context_passage": "The recent discovery of ancient artifacts has generated consider (1) _______ (able/ ably/ ation) excitement among archaeologists. These findings provide vital evidence about a previously unknown civiliza (2) _______ (tion/ tive/ tively). Researchers are now eager to conduct further explora (3) _______ (tion/ tory/ tive) studies in the region. The careful preserva (4) _______ (tion/ tive/ tor) of these relics is crucial for future scholarly investiga (5) _______ (tion/ tive/ tory). The team hopes to publish their findings soon, sharing their discov (6) _______ (ery/ eries/ ers) with the world."
+        },
+        {
+          "id": "s0q4",
+          "number": "5",
+          "marks": 10,
+          "type": "multiple-choice",
+          "prompt": "Choose the most appropriate word or phrase to complete each sentence.",
+          "sub_parts": [
+            {
+              "label": "(1)",
+              "prompt": "The old factory building, ____ for decades, was finally approved for demolition.\n(a) abandoned (b) renovated (c) occupied (d) preserved",
+              "marks": 2
+            },
+            {
+              "label": "(2)",
+              "prompt": "Despite facing many obstacles, her ____ spirit helped her achieve her goals.\n(a) fragile (b) hesitant (c) determined (d) indifferent",
+              "marks": 2
+            },
+            {
+              "label": "(3)",
+              "prompt": "The artist's latest sculpture was a ____ piece, drawing inspiration from ancient mythology.\n(a) mundane (b) ordinary (c) unique (d) common",
+              "marks": 2
+            },
+            {
+              "label": "(4)",
+              "prompt": "The company's rapid ____ was attributed to its innovative marketing strategies.\n(a) decline (b) stagnation (c) expansion (d) contraction",
+              "marks": 2
+            },
+            {
+              "label": "(5)",
+              "prompt": "He tried to ____ the conflict between the two parties, but his efforts were in vain.\n(a) escalate (b) mediate (c) provoke (d) intensify",
+              "marks": 2
+            }
+          ],
+          "context_passage": null
+        },
+        {
+          "id": "s0q5",
+          "number": "6",
+          "marks": 5,
+          "type": "multiple-choice",
+          "prompt": "Select the best option to complete each sentence grammatically and meaningfully.",
+          "sub_parts": [
+            {
+              "label": "(1)",
+              "prompt": "If I ____ more time, I would have visited all the museums.\n(a) have (b) had (c) would have (d) am having",
+              "marks": 1
+            },
+            {
+              "label": "(2)",
+              "prompt": "She enjoys ____ novels and short stories in her free time.\n(a) to read (b) reading (c) read (d) reads",
+              "marks": 1
+            },
+            {
+              "label": "(3)",
+              "prompt": "The manager ____ to his team that the project deadline had been extended.\n(a) said (b) told (c) spoke (d) communicated",
+              "marks": 1
+            },
+            {
+              "label": "(4)",
+              "prompt": "Neither the students ____ the teacher was aware of the change in schedule.\n(a) or (b) nor (c) but (d) and",
+              "marks": 1
+            },
+            {
+              "label": "(5)",
+              "prompt": "He is ____ honest man that everyone trusts him implicitly.\n(a) such an (b) so an (c) too an (d) very an",
+              "marks": 1
+            }
+          ],
+          "context_passage": null
+        }
+      ]
+    },
+    {
+      "id": "partB",
+      "title": "PART B — READING and WRITING",
+      "marks": 25,
+      "instructions": "Answer all questions in this section related to Reading and Writing.",
+      "questions": [
+        {
+          "id": "s1q0",
+          "number": "7",
+          "marks": 6,
+          "type": "sentence-meaning",
+          "prompt": "Underline the option that best expresses the meaning of each of the sentences given below in bold print.",
+          "sub_parts": [
+            {
+              "label": "(1)",
+              "prompt": "\"Had she known about the storm, she would not have sailed.\"\n(a) She sailed because she knew about the storm.\n(b) She sailed, but she didn't know about the storm.\n(c) She didn't sail because she knew about the storm.\n(d) She didn't sail, and she didn't know about the storm.",
+              "marks": 2
+            },
+            {
+              "label": "(2)",
+              "prompt": "\"It is imperative that all safety regulations are strictly adhered to.\"\n(a) Safety regulations should be followed whenever possible.\n(b) Following safety regulations is highly recommended.\n(c) It is absolutely essential to follow all safety regulations.\n(d) Safety regulations are important, but not always necessary to follow.",
+              "marks": 2
+            },
+            {
+              "label": "(3)",
+              "prompt": "\"The committee could scarcely believe the project would be completed on time.\"\n(a) The committee was confident the project would finish on time.\n(b) The committee found it hard to believe the project would be on time.\n(c) The committee was certain the project would be late.\n(d) The committee had no doubt the project would be completed on time.",
+              "marks": 2
+            }
+          ],
+          "context_passage": null
+        },
+        {
+          "id": "s1q1",
+          "number": "8",
+          "marks": 10,
+          "type": "reading-comprehension",
+          "prompt": "Read the following passage and answer the questions that follow.",
+          "sub_parts": [
+            {
+              "label": "(I) Underline the most appropriate response in each of the questions from (1) - (3).",
+              "prompt": "1. What is the Amazon rainforest often called?\n(a) The heart of the Earth\n(b) The lungs of the Earth\n(c) The green desert\n(d) The world's largest forest\n\n2. Which activity is NOT mentioned as a threat to the Amazon rainforest?\n(a) Agriculture\n(b) Tourism\n(c) Logging\n(d) Mining\n\n3. What is essential for protecting the rainforest?\n(a) Intensive logging\n(b) Expanding agriculture\n(c) International cooperation\n(d) Reducing local communities",
+              "marks": 3
+            },
+            {
+              "label": "(II) Do the following statements agree with the information given in the above text? In boxes (1) - (4), write True, False or Not Given.",
+              "prompt": "1. The Amazon rainforest is located solely in Brazil.\n2. Many species in the Amazon are unique to that region.\n3. Pollution from urban areas is the main cause of deforestation.\n4. Local communities are actively involved in conservation efforts.",
+              "marks": 4
+            },
+            {
+              "label": "(III) Who or what do the following pronouns in bold print refer to?",
+              "prompt": "1. \"It\" (line 2: \"The Amazon rainforest... It covers millions...\")\n2. \"which\" (line 4: \"...millions of species of plants and animals, many of which are found nowhere else...\")\n3. \"their\" (line 7: \"...Local communities often work tirelessly to preserve their ancestral lands...\")",
+              "marks": 3
+            }
+          ],
+          "context_passage": "The Amazon rainforest, often referred to as the 'lungs of the Earth,' is a vast and vital ecosystem. It covers millions of square kilometers across several South American countries, playing a critical role in regulating global climate patterns. This incredible biodiversity hotspot is home to millions of species of plants and animals, many of which are found nowhere else on Earth. Deforestation, driven by agriculture, logging, and mining, poses a significant threat to its existence. Protecting this precious natural resource requires international cooperation and sustainable practices. Local communities often work tirelessly to preserve their ancestral lands, understanding its intrinsic value."
+        },
+        {
+          "id": "s1q2",
+          "number": "9",
+          "marks": 9,
+          "type": "paragraph-writing",
+          "prompt": "Write a paragraph beginning with the given sentence. Use about 75 - 100 words. Do not exceed the word limit. Do not write more than one paragraph.\n\nThe importance of digital literacy is growing rapidly in today's world.",
+          "sub_parts": [],
+          "context_passage": null
+        }
+      ]
+    }
+  ]
+}
