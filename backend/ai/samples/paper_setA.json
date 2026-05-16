@@ -1,195 +1,333 @@
 {
-  "title": "General English — A Level Mock Paper",
-  "duration_minutes": 240,
-  "total_marks": 200,
+  "title": "General English — GCE Advanced Level Mock Paper",
+  "duration_minutes": 190,
+  "total_marks": 140,
   "instructions": [
     "Answer all questions on this paper itself.",
     "Marks will be deducted for bad punctuation (Omission of full stops, capital letters, etc.) and for mistakes in basic grammar.",
-    "The supervisor will provide you with sheets for rough work."
+    "The supervisor will provide you with sheets for rough work.",
+    "Use additional reading time to go through the question paper and decide on the questions that you give priority in answering."
   ],
   "sections": [
     {
-      "id": "grammar_vocabulary",
-      "title": "Grammar and Vocabulary (Paper I, Part A)",
-      "marks": 35,
-      "instructions": "Answer all questions in this section.",
+      "id": "secA-reading",
+      "title": "PART A - READING SKILLS",
+      "marks": 50,
+      "instructions": "Read the following texts and poems carefully and answer the questions that follow, using the provided information and inferring where necessary.",
       "questions": [
         {
           "id": "s0q0",
           "number": "1",
-          "marks": 5,
-          "type": "fill-in-the-blank",
-          "prompt": "Fill in the blanks in the following text, using the prepositions given in the box. Use each preposition only once. There is one preposition extra. Box: at, during, to, with, from, on",
-          "sub_parts": [],
-          "context_passage": "The annual school concert will be held next month. Preparations are already underway, and students are rehearsing tirelessly (1)_____ great enthusiasm. The main performance will take place (2)_____ the school auditorium. Everyone is looking forward (3)_____ the event, which promises to be a night of entertainment. Tickets will be available (4)_____ the school office next week. We hope many parents and teachers will join us (5)_____ this special occasion."
+          "marks": 10,
+          "type": "vocabulary-in-context",
+          "prompt": "Read the following text in which some words are given in bold type. Then, underline the meaning that is most appropriate to the context for the words given in bold type from (1) - (10).",
+          "sub_parts": [
+            {
+              "label": "(1)",
+              "prompt": "The rapid **depletion** of natural resources is a major global concern. (exhaustion/ increase/ protection/ discovery)",
+              "marks": 1
+            },
+            {
+              "label": "(2)",
+              "prompt": "Governments are urged to **implement** stricter regulations. (propose/ enforce/ discuss/ delay)",
+              "marks": 1
+            },
+            {
+              "label": "(3)",
+              "prompt": "This will help to **mitigate** the adverse effects of climate change. (intensify/ worsen/ lessen/ ignore)",
+              "marks": 1
+            },
+            {
+              "label": "(4)",
+              "prompt": "Community engagement is **crucial** for successful conservation projects. (unimportant/ vital/ optional/ peripheral)",
+              "marks": 1
+            },
+            {
+              "label": "(5)",
+              "prompt": "Educating the public can foster a greater **appreciation** for biodiversity. (disregard/ understanding/ criticism/ destruction)",
+              "marks": 1
+            },
+            {
+              "label": "(6)",
+              "prompt": "Many species face the risk of **extinction** due to habitat loss. (survival/ proliferation/ disappearance/ adaptation)",
+              "marks": 1
+            },
+            {
+              "label": "(7)",
+              "prompt": "Sustainable practices are **imperative** for future generations. (unnecessary/ optional/ essential/ debatable)",
+              "marks": 1
+            },
+            {
+              "label": "(8)",
+              "prompt": "The **advocacy** of environmental groups plays a key role. (opposition/ support/ silence/ denial)",
+              "marks": 1
+            },
+            {
+              "label": "(9)",
+              "prompt": "This issue requires a **concerted** effort from all stakeholders. (fragmented/ individual/ combined/ minor)",
+              "marks": 1
+            },
+            {
+              "label": "(10)",
+              "prompt": "Long-term planning is **indispensable** for achieving ecological balance. (dispensable/ vital/ optional/ superfluous)",
+              "marks": 1
+            }
+          ],
+          "context_passage": "The rapid **depletion** of natural resources is a major global concern, prompting urgent calls for action. Governments are urged to **implement** stricter regulations to protect fragile ecosystems. This will help to **mitigate** the adverse effects of climate change and preserve natural habitats. Community engagement is **crucial** for successful conservation projects, fostering local ownership and participation. Educating the public can foster a greater **appreciation** for biodiversity and the delicate balance of nature. Unfortunately, many species face the risk of **extinction** due to habitat loss and pollution. Sustainable practices are **imperative** for future generations to ensure resource availability. The **advocacy** of environmental groups plays a key role in raising awareness and pressuring policy-makers. Addressing this complex issue requires a **concerted** effort from all stakeholders, including individuals, industries, and governments. Long-term planning is **indispensable** for achieving ecological balance and a healthy planet."
         },
         {
           "id": "s0q1",
           "number": "2",
           "marks": 10,
-          "type": "fill-in-the-blank",
-          "prompt": "Fill in each blank with the correct form of the verb given within brackets.",
-          "sub_parts": [],
-          "context_passage": "Last summer, our family (1)_____ (decide) to visit the ancient city of Anuradhapura. We (2)_____ (plan) the trip for months, and everyone was excited. As soon as we (3)_____ (arrive), we (4)_____ (begin) exploring the historical sites. By the end of the day, we (5)_____ (see) most of the famous stupas. The next morning, while my parents (6)_____ (relax), my brother and I (7)_____ (go) for a bike ride. We (8)_____ (find) a small, hidden temple that no one (9)_____ (mention) before. It (10)_____ (be) a truly memorable experience."
+          "type": "true-false-not-given",
+          "prompt": "Read the following text and answer the questions (I) and (II). Do the following statements agree with the information given in the above text? In boxes (1) - (10), write True, False or Not Given.",
+          "sub_parts": [
+            {
+              "label": "(1)",
+              "prompt": "Regular exercise improves both physical and mental well-being.",
+              "marks": 1
+            },
+            {
+              "label": "(2)",
+              "prompt": "A balanced diet consists primarily of carbohydrates.",
+              "marks": 1
+            },
+            {
+              "label": "(3)",
+              "prompt": "Lack of sleep can impair cognitive functions and mood.",
+              "marks": 1
+            },
+            {
+              "label": "(4)",
+              "prompt": "Mindfulness meditation is only effective for reducing stress in adults.",
+              "marks": 1
+            },
+            {
+              "label": "(5)",
+              "prompt": "Social interaction has no impact on mental health.",
+              "marks": 1
+            },
+            {
+              "label": "(6)",
+              "prompt": "Exposure to nature has been linked to lower stress levels.",
+              "marks": 1
+            },
+            {
+              "label": "(7)",
+              "prompt": "Setting realistic goals can boost self-esteem and motivation.",
+              "marks": 1
+            },
+            {
+              "label": "(8)",
+              "prompt": "Consuming excessive amounts of sugar is beneficial for brain health.",
+              "marks": 1
+            },
+            {
+              "label": "(9)",
+              "prompt": "Chronic stress does not affect the immune system.",
+              "marks": 1
+            },
+            {
+              "label": "(10)",
+              "prompt": "Engaging in hobbies can provide a sense of purpose and joy.",
+              "marks": 1
+            }
+          ],
+          "context_passage": "Maintaining optimal mental and physical health requires a holistic approach, incorporating various lifestyle factors. Regular physical activity, such as brisk walking or cycling, has been consistently linked to improved mood, reduced anxiety, and enhanced cognitive function. Alongside exercise, a balanced diet rich in fruits, vegetables, and whole grains provides essential nutrients for brain health and overall vitality. Adequate sleep, typically 7-9 hours per night for adults, is fundamental for memory consolidation, emotional regulation, and physical restoration. Lack of sufficient sleep can impair concentration and increase irritability.\n\nFurthermore, cultivating strong social connections is crucial for emotional well-being. Engaging with friends, family, and community groups can provide a sense of belonging and support, acting as a buffer against stress. Practicing mindfulness and meditation techniques can also significantly reduce stress and improve emotional resilience. Exposure to nature, even for short periods, has demonstrated positive effects on mental clarity and reduced feelings of fatigue. Finally, pursuing hobbies and engaging in creative activities offers a sense of purpose and accomplishment, contributing to a fulfilling life."
         },
         {
           "id": "s0q2",
           "number": "3",
-          "marks": 5,
-          "type": "MCQ_word_choice",
-          "prompt": "Underline the most appropriate word from those given within brackets to fill in the blanks in the following text.",
+          "marks": 10,
+          "type": "multiple-choice-comprehension",
+          "prompt": "Read the following passage and underline the most appropriate response to each of the questions from (1) - (5).",
           "sub_parts": [
             {
               "label": "(1)",
-              "prompt": "Effective communication is a vital (element/ factor/ component) in any successful team.",
-              "marks": 1
+              "prompt": "What is the primary objective of the Mars Perseverance rover?",
+              "marks": 2
             },
             {
               "label": "(2)",
-              "prompt": "When team members can openly (exchange/ distribute/ circulate) ideas and feedback, they are more likely to achieve their goals efficiently.",
-              "marks": 1
+              "prompt": "Which instrument on Perseverance is designed to produce oxygen?",
+              "marks": 2
             },
             {
               "label": "(3)",
-              "prompt": "Moreover, clear communication helps to (avoid/ prevent/ prohibit) misunderstandings and conflicts that could otherwise hinder progress.",
-              "marks": 1
+              "prompt": "How does Ingenuity assist the rover's mission?",
+              "marks": 2
             },
             {
               "label": "(4)",
-              "prompt": "It also fosters a sense of unity and (cooperation/ collaboration/ participation) among individuals,",
-              "marks": 1
+              "prompt": "What kind of geological feature is the Jezero Crater?",
+              "marks": 2
             },
             {
               "label": "(5)",
-              "prompt": "leading to a more productive and harmonious working environment.",
-              "marks": 1
+              "prompt": "The passage suggests that the Perseverance mission is primarily focused on:",
+              "marks": 2
             }
           ],
-          "context_passage": "Effective communication is a vital (1) [element/ factor/ component] in any successful team. When team members can openly (2) [exchange/ distribute/ circulate] ideas and feedback, they are more likely to achieve their goals efficiently. Moreover, clear communication helps to (3) [avoid/ prevent/ prohibit] misunderstandings and conflicts that could otherwise (4) [hinder/ obstruct/ block] progress. It also fosters a sense of unity and (5) [cooperation/ collaboration/ participation] among individuals, leading to a more productive and harmonious working environment."
+          "context_passage": "NASA's Mars Perseverance rover, which landed in the Jezero Crater in February 2021, continues its ambitious mission to seek signs of ancient microbial life. The rover, a six-wheeled mobile laboratory, is equipped with a sophisticated suite of instruments to analyze Martian geology and collect rock and soil samples for eventual return to Earth. One of its key tools is MOXIE (Mars Oxygen In-Situ Resource Utilization Experiment), which successfully demonstrated the ability to produce oxygen from the Martian atmosphere, a crucial step for future human exploration.\n\nAccompanying Perseverance is the Ingenuity Mars Helicopter, a small robotic rotorcraft that has performed numerous successful flights, serving as a scout to help the rover navigate difficult terrain and identify potential scientific targets. The Jezero Crater itself is of significant scientific interest, believed to have once been a lakebed and river delta, offering prime locations for finding preserved biosignatures. The data collected by Perseverance will significantly enhance our understanding of Mars' past habitability and pave the way for future human missions."
         },
         {
           "id": "s0q3",
           "number": "4",
-          "marks": 5,
-          "type": "MCQ_word_choice",
-          "prompt": "Underline the most appropriate word from those given within brackets.",
+          "marks": 10,
+          "type": "fill-in-the-blank",
+          "prompt": "Fill in the blanks using one word from the passage in each space.",
           "sub_parts": [
             {
               "label": "(1)",
-              "prompt": "The company aims to (expand, extend, stretch) its market share in the coming year.",
+              "prompt": "Effective teamwork begins with clear (1) ___________ among team members.",
               "marks": 1
             },
             {
               "label": "(2)",
-              "prompt": "She felt a strong (desire, wish, longing) to travel the world.",
+              "prompt": "Each individual's (2) ___________ contributes to the overall success of a project.",
               "marks": 1
             },
             {
               "label": "(3)",
-              "prompt": "The evidence presented was (sufficient, enough, adequate) to prove his innocence.",
+              "prompt": "When team members actively (3) ___________ to each other, misunderstandings are minimized.",
               "marks": 1
             },
             {
               "label": "(4)",
-              "prompt": "Students are encouraged to (participate, partake, engage) in extracurricular activities.",
+              "prompt": "Trust is a fundamental (4) ___________ that fosters an environment of openness.",
               "marks": 1
             },
             {
               "label": "(5)",
-              "prompt": "The project was completed (successfully, triumphantly, victoriously) ahead of schedule.",
+              "prompt": "Shared (5) ___________ ensure that everyone is working towards the same objectives.",
+              "marks": 1
+            },
+            {
+              "label": "(6)",
+              "prompt": "Resolving (6) ___________ constructively is vital for maintaining harmony.",
+              "marks": 1
+            },
+            {
+              "label": "(7)",
+              "prompt": "Team leaders must (7) ___________ collaboration and provide necessary guidance.",
+              "marks": 1
+            },
+            {
+              "label": "(8)",
+              "prompt": "Celebrating small (8) ___________ along the way motivates the team.",
+              "marks": 1
+            },
+            {
+              "label": "(9)",
+              "prompt": "The diversity of skills and (9) ___________ within a team can lead to innovative solutions.",
+              "marks": 1
+            },
+            {
+              "label": "(10)",
+              "prompt": "Ultimately, a strong team (10) ___________ enhances productivity and job satisfaction.",
               "marks": 1
             }
           ],
-          "context_passage": null
+          "context_passage": "Effective teamwork begins with clear **communication** among team members. Each individual's **contribution** contributes to the overall success of a project. When team members actively **listen** to each other, misunderstandings are minimized. Trust is a fundamental **element** that fosters an environment of openness and mutual respect. Shared **goals** ensure that everyone is working towards the same objectives. Resolving **conflicts** constructively is vital for maintaining harmony and a positive working atmosphere. Team leaders must **encourage** collaboration and provide necessary guidance and resources. Celebrating small **achievements** along the way motivates the team and reinforces a sense of progress. The diversity of skills and **perspectives** within a team can lead to innovative solutions and greater creativity. Ultimately, a strong team **spirit** enhances productivity and job satisfaction, making complex tasks more manageable."
         },
         {
           "id": "s0q4",
           "number": "5",
           "marks": 10,
-          "type": "MCQ_word_ending",
-          "prompt": "Underline the correct word-ending, selecting from those given in brackets.",
+          "type": "pronoun-reference",
+          "prompt": "Who or what do the following pronouns in bold print refer to? (5 marks)\nWrite one word in each blank, selecting from the passage, which means the same as the following: (5 marks)",
           "sub_parts": [
             {
-              "label": "(1)",
-              "prompt": "The new environ........... (mental/ mentally/ ment) policy aims to reduce pollution.",
+              "label": "(a)",
+              "prompt": "They (paragraph 1, line 3)",
               "marks": 1
             },
             {
-              "label": "(2)",
-              "prompt": "This is a signifi........... (cant/ cantly/ cance) step towards a sustain........... (able/ ability/ ably) future.",
-              "marks": 2
-            },
-            {
-              "label": "(3)",
-              "prompt": "Public aware........... (ness/ nessly/ nessful) campaigns will be launched.",
+              "label": "(b)",
+              "prompt": "Its (paragraph 1, line 6)",
               "marks": 1
             },
             {
-              "label": "(4)",
-              "prompt": "Citizens must understand their respon........... (sible/ sibility/ sibly) role.",
+              "label": "(c)",
+              "prompt": "Which (paragraph 2, line 2)",
               "marks": 1
             },
             {
-              "label": "(5)",
-              "prompt": "The success of this initia........... (tive/ tively/ tion) depends on collective action.",
+              "label": "(d)",
+              "prompt": "Them (paragraph 2, line 4)",
               "marks": 1
             },
             {
-              "label": "(6)",
-              "prompt": "Local author........... (ity/ ities/ ize) are working closely with commu........... (nity/ nities/ nitize) groups.",
-              "marks": 2
-            },
-            {
-              "label": "(7)",
-              "prompt": "The ultimate objec........... (tive/ tively/ tify) is to improve quality of life.",
+              "label": "(e)",
+              "prompt": "It (paragraph 2, line 6)",
               "marks": 1
             },
             {
-              "label": "(8)",
-              "prompt": "This requires a dedi........... (cated/ cation/ cating) effort.",
+              "label": "(f)",
+              "prompt": "Challenges or difficulties",
+              "marks": 1
+            },
+            {
+              "label": "(g)",
+              "prompt": "Important or necessary",
+              "marks": 1
+            },
+            {
+              "label": "(h)",
+              "prompt": "To improve or make better",
+              "marks": 1
+            },
+            {
+              "label": "(i)",
+              "prompt": "Local residents or inhabitants",
+              "marks": 1
+            },
+            {
+              "label": "(j)",
+              "prompt": "To find or discover",
               "marks": 1
             }
           ],
-          "context_passage": "The new environ........... (mental/ mentally/ ment) policy aims to reduce pollution in urban areas. This is a signifi........... (cant/ cantly/ cance) step towards creating a more sustain........... (able/ ability/ ably) future. Public aware........... (ness/ nessly/ nessful) campaigns will be launched to educate citizens about their respon........... (sible/ sibility/ sibly) role. The success of this initia........... (tive/ tively/ tion) depends on collective action. Local author........... (ity/ ities/ ize) are working closely with commu........... (nity/ nities/ nitize) groups. The ultimate objec........... (tive/ tively/ tify) is to improve the quality of life for all residents. This requires a dedi........... (cated/ cation/ cating) effort from everyone."
+          "context_passage": "Urban development in rapidly growing cities presents unique **challenges**. Many cities are grappling with issues of overcrowding, inadequate infrastructure, and environmental degradation. As populations expand, so does the demand for housing, transportation, and public services. Without proper planning, **they** risk chaotic expansion and a decline in living standards. The urban planning department has been tasked with creating a sustainable blueprint, but **its** efforts are often hampered by limited resources and bureaucratic hurdles.\n\nOne particularly **crucial** aspect is the management of waste, which has become an overwhelming problem. Recycling initiatives have been introduced, **which** aim to reduce landfill waste, but active participation from citizens is low. Authorities must find ways to engage **them** more effectively. Furthermore, preserving green spaces within city limits is also **essential** for public health and biodiversity. It is imperative to **enhance** these areas and **identify** new ones for development, ensuring a balance between modernity and nature for all **citizens**."
         }
       ]
     },
     {
-      "id": "reading_writing_paper1",
-      "title": "Reading and Writing (Paper I, Part B)",
+      "id": "secB-dialogues",
+      "title": "PART B - DIALOGUES",
       "marks": 25,
-      "instructions": "Answer all questions in this section.",
+      "instructions": "Respond appropriately to given situations, or complete and create dialogues as instructed, adhering to specified sentence limits.",
       "questions": [
         {
           "id": "s1q0",
           "number": "6",
           "marks": 5,
-          "type": "MCQ_sentence_meaning",
-          "prompt": "Underline the option that best expresses the meaning of each of the sentences given below in bold print.",
+          "type": "situational-response",
+          "prompt": "How do you respond in each of the following situations? Write only one sentence or question for each, beginning with the word/s given.",
           "sub_parts": [
             {
               "label": "(1)",
-              "prompt": "Despite the heavy traffic, she managed to arrive at the meeting on time.\n(a) The heavy traffic made her late for the meeting.\n(b) She was late for the meeting because of the traffic.\n(c) The traffic was heavy, but she was still punctual for the meeting.\n(d) She arrived on time, so there was no heavy traffic.",
+              "prompt": "You accidentally bump into someone in a crowded market. You want to apologize. \"Oh, I'm...\"",
               "marks": 1
             },
             {
               "label": "(2)",
-              "prompt": "If he had studied harder, he would have passed the exam.\n(a) He studied hard and passed the exam.\n(b) He didn't study hard, so he didn't pass the exam.\n(c) He will study hard to pass the exam.\n(d) He passed the exam even though he didn't study hard.",
+              "prompt": "Your friend suggests going to the cinema, but you've already seen the movie. \"I'd love...\"",
               "marks": 1
             },
             {
               "label": "(3)",
-              "prompt": "It is widely believed that regular exercise contributes significantly to a healthier lifestyle.\n(a) Nobody believes that exercise is good for health.\n(b) A healthier lifestyle is caused by many factors, including exercise.\n(c) Most people agree that exercise is very important for good health.\n(d) Exercise is the only factor for a healthy lifestyle.",
+              "prompt": "You are at a restaurant and need to ask for the bill. \"Excuse me...\"",
               "marks": 1
             },
             {
               "label": "(4)",
-              "prompt": "The new regulations will come into effect next month.\n(a) The new regulations are already effective.\n(b) The new regulations were effective last month.\n(c) The new regulations will be enforced starting from the following month.\n(d) The new regulations were cancelled last month.",
+              "prompt": "Your teacher praises your excellent performance on a recent assignment. \"Thank you...\"",
               "marks": 1
             },
             {
               "label": "(5)",
-              "prompt": "Seldom does she miss a chance to travel abroad.\n(a) She often travels abroad.\n(b) She rarely travels abroad.\n(c) She never travels abroad.\n(d) She always misses chances to travel abroad.",
+              "prompt": "You want to offer your help to an elderly person struggling with heavy bags. \"May I...\"",
               "marks": 1
             }
           ],
@@ -199,441 +337,96 @@
           "id": "s1q1",
           "number": "7",
           "marks": 10,
-          "type": "reading_comprehension_true_false_not_given",
-          "prompt": "Read the following passage and answer the questions. Do the following statements agree with the information given in the above text? In boxes (1) - (10), write True, False or Not Given.",
+          "type": "dialogue-completion",
+          "prompt": "Complete the following dialogue between Amara and Bhanu. Do not use more than two sentences/ questions in each blank.",
           "sub_parts": [
             {
               "label": "(1)",
-              "prompt": "AI is only used in healthcare and finance.",
-              "marks": 1
+              "prompt": "Amara: Good morning, Bhanu. Did you manage to finish reading the assigned article for today's lecture?\nBhanu: (1).................................................................................................................",
+              "marks": 2
             },
             {
               "label": "(2)",
-              "prompt": "AI can help in early and accurate disease diagnosis.",
-              "marks": 1
+              "prompt": "Amara: Oh, that's a shame. It contained some really insightful points about renewable energy.\nBhanu: (2).................................................................................................................",
+              "marks": 2
             },
             {
               "label": "(3)",
-              "prompt": "Job displacement is a concern due to AI advancements.",
-              "marks": 1
+              "prompt": "Amara: Professor Silva mentioned that there will be a short quiz on it next week.\nBhanu: (3).................................................................................................................",
+              "marks": 2
             },
             {
               "label": "(4)",
-              "prompt": "All jobs will be automated by AI in the near future.",
-              "marks": 1
+              "prompt": "Amara: Yes, I can summarize the main arguments for you if you like.\nBhanu: (4).................................................................................................................",
+              "marks": 2
             },
             {
               "label": "(5)",
-              "prompt": "AI algorithms are used to detect fraud in financial transactions.",
-              "marks": 1
-            },
-            {
-              "label": "(6)",
-              "prompt": "New jobs requiring creativity are expected to emerge.",
-              "marks": 1
-            },
-            {
-              "label": "(7)",
-              "prompt": "The government has already implemented strict laws for AI.",
-              "marks": 1
-            },
-            {
-              "label": "(8)",
-              "prompt": "There is a discussion about regulating AI development.",
-              "marks": 1
-            },
-            {
-              "label": "(9)",
-              "prompt": "AI has no negative impacts on society.",
-              "marks": 1
-            },
-            {
-              "label": "(10)",
-              "prompt": "AI's primary goal is to replace human workers.",
-              "marks": 1
+              "prompt": "Amara: No problem at all. We could meet during the lunch break tomorrow to discuss it.\nBhanu: (5).................................................................................................................",
+              "marks": 2
             }
           ],
-          "context_passage": "The rise of artificial intelligence (AI) has brought about significant transformations across various sectors. From healthcare to finance, AI is being integrated into daily operations, promising increased efficiency and innovative solutions. In medicine, AI algorithms assist in diagnosing diseases earlier and more accurately, while in finance, they help detect fraudulent activities. However, the rapid advancement of AI also raises concerns regarding job displacement and ethical considerations. Experts predict that while some jobs may be automated, new roles requiring human creativity and critical thinking will emerge. There is an ongoing debate about the need for robust regulatory frameworks to govern AI development and deployment, ensuring its responsible use."
+          "context_passage": null
         },
         {
           "id": "s1q2",
           "number": "8",
           "marks": 10,
-          "type": "paragraph_writing",
-          "prompt": "Write a paragraph beginning with the given sentence. Use about 75 - 100 words. Do not exceed the word limit. Do not write more than one paragraph.\n\"The importance of conserving natural resources cannot be overstated in today's world.\"",
+          "type": "dialogue-writing",
+          "prompt": "Imagine that you are discussing plans for a school charity event with your friend. Write out the dialogue between your friend and you. Each one should speak at least five times.",
           "sub_parts": [],
           "context_passage": null
         }
       ]
     },
     {
-      "id": "reading_skills_paper2",
-      "title": "Reading Skills (Paper II, Part A)",
-      "marks": 50,
-      "instructions": "Answer all questions in this section.",
+      "id": "secC-writing",
+      "title": "PART C - WRITING SKILLS",
+      "marks": 65,
+      "instructions": "Demonstrate writing proficiency through various tasks including sentence construction, data description, and extended writing forms such as emails, letters, and essays.",
       "questions": [
         {
           "id": "s2q0",
-          "number": "1",
-          "marks": 10,
-          "type": "vocabulary_in_context_MCQ",
-          "prompt": "Read the following text in which some words are given in bold type. Then, underline the meaning that is most appropriate to the context for the words given in bold type from (1) - (10).",
-          "sub_parts": [
-            {
-              "label": "(1)",
-              "prompt": "fundamental: (basic, complex, optional, advanced, minor)",
-              "marks": 1
-            },
-            {
-              "label": "(2)",
-              "prompt": "hampers: (assists, obstructs, promotes, enables, improves)",
-              "marks": 1
-            },
-            {
-              "label": "(3)",
-              "prompt": "residing: (visiting, living, working, traveling, passing)",
-              "marks": 1
-            },
-            {
-              "label": "(4)",
-              "prompt": "formidable: (easy, simple, challenging, minor, trivial)",
-              "marks": 1
-            },
-            {
-              "label": "(5)",
-              "prompt": "ameliorate: (worsen, improve, ignore, maintain, simplify)",
-              "marks": 1
-            },
-            {
-              "label": "(6)",
-              "prompt": "pivotal: (unimportant, crucial, peripheral, minor, secondary)",
-              "marks": 1
-            },
-            {
-              "label": "(7)",
-              "prompt": "disparity: (equality, similarity, difference, uniformity, harmony)",
-              "marks": 1
-            },
-            {
-              "label": "(8)",
-              "prompt": "hurdle: (advantage, obstacle, solution, aid, benefit)",
-              "marks": 1
-            },
-            {
-              "label": "(9)",
-              "prompt": "concerted: (individual, collective, random, unplanned, disorganized)",
-              "marks": 1
-            },
-            {
-              "label": "(10)",
-              "prompt": "flourish: (decline, struggle, thrive, fade, wither)",
-              "marks": 1
-            }
-          ],
-          "context_passage": "Access to quality education is a **fundamental** (1) right that empowers individuals and societies. In many developing nations, the lack of adequate resources **hampers** (2) educational progress. Children **residing** (3) in rural areas often face **formidable** (4) challenges, including long distances to school and a shortage of qualified teachers. Governments and NGOs are working to **ameliorate** (5) these conditions through various initiatives. Technology plays a **pivotal** (6) role in bridging educational gaps, offering online learning platforms and digital resources. However, the **disparity** (7) in access to technology remains a significant **hurdle** (8). Promoting inclusive education requires a **concerted** (9) effort from all stakeholders to ensure every child has the opportunity to **flourish** (10)."
+          "number": "9",
+          "marks": 5,
+          "type": "sentence-construction",
+          "prompt": "Select any five words from the list of nouns, verbs, adjectives and adverbs given below and use each one of them in a meaningful sentence. You may use the verbs in any tense. Do not change the form of the other words.\n\nNouns: dedication, innovation\nVerbs: analyze, facilitate, adapt\nAdjectives: intricate, resilient\nAdverbs: diligently, sparingly",
+          "sub_parts": [],
+          "context_passage": null
         },
         {
           "id": "s2q1",
-          "number": "2",
+          "number": "10",
           "marks": 10,
-          "type": "reading_comprehension_true_false_not_given",
-          "prompt": "Read the following text and answer the questions. Do the following statements agree with the information given in the above text? In boxes (1) - (10), write True, False or Not Given.",
-          "sub_parts": [
-            {
-              "label": "(1)",
-              "prompt": "Urbanization is a global phenomenon.",
-              "marks": 1
-            },
-            {
-              "label": "(2)",
-              "prompt": "Cities are generally considered centers for economic development.",
-              "marks": 1
-            },
-            {
-              "label": "(3)",
-              "prompt": "Rural areas offer more diverse job opportunities than cities.",
-              "marks": 1
-            },
-            {
-              "label": "(4)",
-              "prompt": "Urbanization creates challenges for city infrastructure.",
-              "marks": 1
-            },
-            {
-              "label": "(5)",
-              "prompt": "Pollution is a common problem in rapidly urbanizing areas.",
-              "marks": 1
-            },
-            {
-              "label": "(6)",
-              "prompt": "Public transportation is not a part of sustainable urban planning.",
-              "marks": 1
-            },
-            {
-              "label": "(7)",
-              "prompt": "All urban residents have equitable access to resources.",
-              "marks": 1
-            },
-            {
-              "label": "(8)",
-              "prompt": "Sustainable urban planning aims to make cities more livable.",
-              "marks": 1
-            },
-            {
-              "label": "(9)",
-              "prompt": "The passage specifies the exact number of people moving to cities annually.",
-              "marks": 1
-            },
-            {
-              "label": "(10)",
-              "prompt": "Green spaces are important for sustainable urban development.",
-              "marks": 1
-            }
-          ],
-          "context_passage": "The rapid urbanization witnessed globally has led to both opportunities and challenges. Cities, often seen as engines of economic growth, attract large populations seeking better prospects. This influx of people, however, puts immense pressure on existing infrastructure, including housing, transportation, and public services. While urban areas offer diverse job markets and cultural experiences, they also grapple with issues such as pollution, traffic congestion, and increasing inequality. Sustainable urban planning is crucial to mitigate these negative impacts and create livable cities. This involves developing green spaces, promoting public transport, and implementing policies that ensure equitable access to resources for all residents."
+          "type": "data-description-report",
+          "prompt": "The bar chart below shows the percentage of students participating in various extracurricular activities in a local school in 2023. Describe the information by reporting the main features and making comparisons where relevant. Use about 75 words.\n\nData for Bar Chart:\nActivity | Percentage of Students\n---|---\nSports Club | 60%\nDebate Society | 35%\nArt & Craft | 45%\nEnvironmental Club | 20%\nCoding Club | 10%",
+          "sub_parts": [],
+          "context_passage": null
         },
         {
           "id": "s2q2",
-          "number": "3",
-          "marks": 10,
-          "type": "reading_comprehension_MCQ",
-          "prompt": "Read the following poem and underline the most appropriate response to each of the questions from (1) - (5).",
-          "sub_parts": [
-            {
-              "label": "(1)",
-              "prompt": "What is the dominant mood or atmosphere of the poem?\n(a) Joyful and energetic\n(b) Reflective and tranquil\n(c) Anxious and chaotic\n(d) Angry and defiant",
-              "marks": 2
-            },
-            {
-              "label": "(2)",
-              "prompt": "What does \"hallowed ground\" most likely refer to in the poem?\n(a) A playground\n(b) A sacred or revered place\n(c) A bustling marketplace\n(d) A modern office building",
-              "marks": 2
-            },
-            {
-              "label": "(3)",
-              "prompt": "The phrase \"silver ribbon bright\" describes which natural element?\n(a) The moon\n(b) A path\n(c) The river\n(d) A road",
-              "marks": 2
-            },
-            {
-              "label": "(4)",
-              "prompt": "What message does the line \"Each morning brings a fresh and hopeful dawn\" convey?\n(a) Every day is identical to the last.\n(b) New beginnings offer optimism.\n(c) Hope is found only in the past.\n(d) Mornings are generally gloomy.",
-              "marks": 2
-            },
-            {
-              "label": "(5)",
-              "prompt": "The poem encourages readers to:\n(a) Forget all past experiences.\n(b) Focus solely on future events.\n(c) Value present moments and shared experiences.\n(d) Regret missed opportunities.",
-              "marks": 2
-            }
-          ],
-          "context_passage": "The old clock ticks, a steady, measured sound,\nAs shadows lengthen on the hallowed ground.\nA gentle breeze, a whisper through the trees,\nCarries echoes of forgotten memories.\nThe river flows, a silver ribbon bright,\nReflecting stars that pierce the silent night.\nEach morning brings a fresh and hopeful dawn,\nThough past regrets may linger, never gone.\nThe world awakes, with promises untold,\nA story waiting patiently to unfold.\nSo let us cherish moments, fleeting, rare,\nAnd find our solace in the air we share."
+          "number": "11",
+          "marks": 15,
+          "type": "email-writing",
+          "prompt": "Imagine that you have successfully completed a challenging project at work, and you want to share your experience with a former mentor. Write an email to your mentor describing your achievement and how their guidance helped you. In your email, include the following: a brief overview of the project; the challenges you faced; how your mentor's advice was crucial; and an expression of gratitude. You may include any relevant details but do not exceed 75 words.",
+          "sub_parts": [],
+          "context_passage": null
         },
         {
           "id": "s2q3",
-          "number": "4",
-          "marks": 10,
-          "type": "fill-in-the-blank_from_passage",
-          "prompt": "Fill in the blanks using one word from the passage in each space.",
-          "sub_parts": [
-            {
-              "label": "(1)",
-              "prompt": "Global warming is caused mainly by the (______________) of greenhouse gases.",
-              "marks": 2
-            },
-            {
-              "label": "(2)",
-              "prompt": "Greenhouse gases (______________) heat in the atmosphere.",
-              "marks": 2
-            },
-            {
-              "label": "(3)",
-              "prompt": "Rising sea levels are one of the (______________) of global warming.",
-              "marks": 2
-            },
-            {
-              "label": "(4)",
-              "prompt": "Transitioning to (______________) energy sources is crucial in combating global warming.",
-              "marks": 2
-            },
-            {
-              "label": "(5)",
-              "prompt": "International (______________) is necessary for an effective response to this challenge.",
-              "marks": 2
-            }
-          ],
-          "context_passage": "Global warming is a pressing environmental issue, primarily caused by the emission of greenhouse gases. These gases, such as carbon dioxide and methane, trap heat in the atmosphere, leading to a gradual increase in Earth's average temperature. The consequences are far-reaching, including rising sea levels, more frequent extreme weather events, and disruptions to ecosystems. Efforts to combat global warming involve transitioning to renewable energy sources, improving energy efficiency, and promoting sustainable land use practices. International cooperation is essential to address this complex challenge effectively and ensure a habitable planet for future generations. Individuals can also contribute by reducing their carbon footprint through conscious choices in daily life."
+          "number": "12",
+          "marks": 15,
+          "type": "cover-letter-writing",
+          "prompt": "You see an advertisement in a local newspaper for the post of Junior Marketing Executive. Qualifications required: a degree or diploma in Marketing; excellent communication skills; proficiency in digital marketing tools; age limit: 22 - 30 years. Imagine that you have the required qualifications. Write a cover letter, applying for the post. Do NOT write a CV. Use about 75-100 words for the body of the letter. Do not exceed the word limit.",
+          "sub_parts": [],
+          "context_passage": null
         },
         {
           "id": "s2q4",
-          "number": "5",
-          "marks": 10,
-          "type": "pronoun_reference",
-          "prompt": "Who or what do the following pronouns in bold print refer to?",
-          "sub_parts": [
-            {
-              "label": "(1)",
-              "prompt": "**it** refers to:",
-              "marks": 2
-            },
-            {
-              "label": "(2)",
-              "prompt": "**they** (first instance) refers to:",
-              "marks": 2
-            },
-            {
-              "label": "(3)",
-              "prompt": "**their** refers to:",
-              "marks": 2
-            },
-            {
-              "label": "(4)",
-              "prompt": "**they** (second instance) refers to:",
-              "marks": 2
-            },
-            {
-              "label": "(5)",
-              "prompt": "**such programs** refers to:",
-              "marks": 2
-            }
-          ],
-          "context_passage": "The local community center recently launched a new vocational training program, and **it** (1) aims to equip young adults with essential skills for employment. Many residents, particularly those who had struggled to find work, expressed keen interest. The organizers ensured that **they** (2) received comprehensive guidance throughout the application process. A group of experienced instructors, known for **their** (3) dedication, will lead the courses. The program emphasizes hands-on experience, allowing participants to apply what **they** (4) learn in practical settings. This initiative is expected to significantly boost local employment, demonstrating how effective **such programs** (5) can be in fostering economic growth."
-        }
-      ]
-    },
-    {
-      "id": "dialogues_paper2",
-      "title": "Dialogues (Paper II, Part B)",
-      "marks": 25,
-      "instructions": "Answer all questions in this section.",
-      "questions": [
-        {
-          "id": "s3q0",
-          "number": "6",
-          "marks": 5,
-          "type": "situational_response",
-          "prompt": "How do you respond in each of the following situations? Write only one sentence or question for each, beginning with the word/s given.",
-          "sub_parts": [
-            {
-              "label": "(1)",
-              "prompt": "You accidentally bumped into a stranger on the street.\n\"Oh, I'm so...\"",
-              "marks": 1
-            },
-            {
-              "label": "(2)",
-              "prompt": "Your friend just told you they passed a difficult exam.\n\"That's fantastic!...\"",
-              "marks": 1
-            },
-            {
-              "label": "(3)",
-              "prompt": "Your neighbor offers to help you carry some heavy groceries.\n\"Thank you so much,...\"",
-              "marks": 1
-            },
-            {
-              "label": "(4)",
-              "prompt": "You want to politely decline an invitation to a party next weekend.\n\"I'd love to, but...\"",
-              "marks": 1
-            },
-            {
-              "label": "(5)",
-              "prompt": "Your teacher asks why you were absent from class yesterday.\n\"I was absent because...\"",
-              "marks": 1
-            }
-          ],
-          "context_passage": null
-        },
-        {
-          "id": "s3q1",
-          "number": "7",
-          "marks": 5,
-          "type": "dialogue_completion",
-          "prompt": "Complete the following dialogue between Ruwan and Nimal. Do not use more than two sentences/ questions in each blank.",
-          "sub_parts": [
-            {
-              "label": "(1)",
-              "prompt": "Nimal: \"Good morning, Ruwan. (1)..........................................\"",
-              "marks": 1
-            },
-            {
-              "label": "(2)",
-              "prompt": "Nimal: \"(2)..........................................\"",
-              "marks": 1
-            },
-            {
-              "label": "(3)",
-              "prompt": "Nimal: \"(3)..........................................\"",
-              "marks": 1
-            },
-            {
-              "label": "(4)",
-              "prompt": "Nimal: \"(4)..........................................\"",
-              "marks": 1
-            },
-            {
-              "label": "(5)",
-              "prompt": "Nimal: \"Great! (5)..........................................\"",
-              "marks": 1
-            }
-          ],
-          "context_passage": "Ruwan: \"Good morning, Nimal. How was your weekend?\"\nNimal: \"Good morning, Ruwan. (1)..........................................\"\nRuwan: \"That sounds relaxing! I went hiking in the mountains.\"\nNimal: \"(2)..........................................\"\nRuwan: \"It was challenging but rewarding. The views were breathtaking!\"\nNimal: \"(3)..........................................\"\nRuwan: \"Yes, I took plenty of photos. I can show you later.\"\nNimal: \"(4)..........................................\"\nRuwan: \"No problem. I'll send you the link to the album.\"\nNimal: \"Great! (5)..........................................\""
-        },
-        {
-          "id": "s3q2",
-          "number": "8",
-          "marks": 15,
-          "type": "dialogue_writing",
-          "prompt": "Imagine that you are discussing plans for a school charity event, and you have to finalize the details with your friend. Write out the dialogue between your friend and you. Each one should speak at least five times.",
-          "sub_parts": [],
-          "context_passage": null
-        }
-      ]
-    },
-    {
-      "id": "writing_skills_paper2",
-      "title": "Writing Skills (Paper II, Part C)",
-      "marks": 65,
-      "instructions": "Answer all questions in this section.",
-      "questions": [
-        {
-          "id": "s4q0",
-          "number": "9",
-          "marks": 5,
-          "type": "sentence_construction_vocabulary",
-          "prompt": "Select any five words from the list of nouns, verbs, adjectives and adverbs given below and use each one of them in a meaningful sentence. You may use the verbs in any tense. Do not change the form of the other words.\nNouns: opportunity, resilience\nVerbs: innovate, collaborate, criticize\nAdjectives: sustainable, vibrant, essential\nAdverbs: swiftly, gradually",
-          "sub_parts": [],
-          "context_passage": null
-        },
-        {
-          "id": "s4q1",
-          "number": "10",
-          "marks": 10,
-          "type": "data_description_writing",
-          "prompt": "The bar chart below shows the percentage of students participating in different extracurricular activities in two schools: Northwood High and Southside Academy, during the last academic year. Describe the information by reporting the main features and making comparisons where relevant. Use about 75 words.",
-          "sub_parts": [],
-          "context_passage": "A bar chart titled 'Student Participation in Extracurricular Activities: Northwood High vs. Southside Academy (Last Academic Year)' shows the percentage of students engaged in five different activities: Sports, Debating, Music, Art Club, and Science Fair. For Northwood High, participation rates are 60% for Sports, 20% for Debating, 45% for Music, 30% for Art Club, and 15% for Science Fair. In contrast, Southside Academy shows 40% in Sports, 35% in Debating, 25% in Music, 50% in Art Club, and 20% in Science Fair."
-        },
-        {
-          "id": "s4q2",
-          "number": "11",
-          "marks": 15,
-          "type": "email_writing",
-          "prompt": "Imagine that you plan to go on a trip to explore historical sites after your A/L exam, and write an email to your friend describing your plan and inviting him/her to join you. In your email, include the following: When, where and with whom you plan to go. What you hope to see/ do during the trip. You may include any relevant details but do not exceed 75 words.",
-          "sub_parts": [],
-          "context_passage": null
-        },
-        {
-          "id": "s4q3",
-          "number": "12",
-          "marks": 15,
-          "type": "cover_letter_writing",
-          "prompt": "You see an advertisement in a local newspaper for the post of Junior Marketing Executive. Qualifications required: A Bachelor's degree in Marketing or related field. Excellent communication and interpersonal skills. Age limit: 20 - 28 years. Imagine that you have the required qualifications. Write a cover letter, applying for the post. Do NOT write a CV. Use about 75 - 100 words for the body of the letter. Do not exceed the word limit.",
-          "sub_parts": [],
-          "context_passage": null
-        },
-        {
-          "id": "s4q4",
           "number": "13",
           "marks": 20,
-          "type": "essay_writing_opinion",
-          "prompt": "Some people think that technology has made our lives easier and more convenient. Others disagree and believe that it has created new problems and challenges. What is your opinion? Write an essay, giving your views on this. Use about 150-200 words. Do not exceed the word limit.",
+          "type": "essay-writing",
+          "prompt": "Some people believe that traditional libraries are becoming obsolete in the digital age. Others argue that they remain vital community hubs. What is your opinion? Write an essay, giving your views on this. Use about 150-200 words. Do not exceed the word limit.",
           "sub_parts": [],
           "context_passage": null
         }

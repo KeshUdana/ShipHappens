@@ -1,80 +1,57 @@
 {
   "subject": "General English",
   "board": "Department of Examinations Sri Lanka",
-  "level": "A Level",
-  "duration_minutes": 240,
-  "total_marks": 200,
-  "tone_notes": "The register is formal and academic, suitable for an advanced level examination. Vocabulary level is appropriate for A-Level students, covering a range of topics from everyday situations to social issues and current events. Passages include general descriptive texts, news articles, short narratives, a poem, and data representations. The question styles are direct and instructional, requiring precise answers in grammar, vocabulary, reading comprehension, and various writing formats (paragraphs, dialogues, emails, letters, essays). The tasks often involve analysis, interpretation, and expression of opinions.",
+  "level": "GCE Advanced Level",
+  "duration_minutes": 190,
+  "total_marks": 140,
+  "tone_notes": "The tone is formal and academic, appropriate for A-Level examinations. Vocabulary level is advanced. Passages typically include factual texts (news items, research findings, social commentary), short narratives, poems, and data representations (bar charts). Questions are direct and require precise answers, adherence to word limits, and correct grammar/punctuation. Formatting often includes numbered questions, lettered/roman numeral options for multiple-choice, and clearly marked blanks.",
   "instructions_pattern": [
     "Answer all questions on this paper itself.",
     "Marks will be deducted for bad punctuation (Omission of full stops, capital letters, etc.) and for mistakes in basic grammar.",
-    "The supervisor will provide you with sheets for rough work."
+    "The supervisor will provide you with sheets for rough work.",
+    "Use additional reading time to go through the question paper and decide on the questions that you give priority in answering."
   ],
   "sections": [
     {
-      "id": "grammar_vocabulary",
-      "title": "Grammar and Vocabulary (Paper I, Part A)",
-      "marks": 35,
-      "instructions": "Answer all questions in this section.",
-      "question_types": [
-        "fill-in-the-blank",
-        "MCQ_word_choice",
-        "MCQ_word_ending"
-      ],
-      "typical_prompt_style": "Fill in the blanks in the following text, using the [BLANK] given in the box. Use each [BLANK] only once. There is one [BLANK] extra.Fill in each blank with the correct form of the verb given within brackets.Underline the most appropriate word from those given within brackets to fill in the blanks in the following text.Underline the most appropriate word from those given within brackets.Underline the correct word-ending, selecting from those given in brackets."
-    },
-    {
-      "id": "reading_writing_paper1",
-      "title": "Reading and Writing (Paper I, Part B)",
-      "marks": 25,
-      "instructions": "Answer all questions in this section.",
-      "question_types": [
-        "MCQ_sentence_meaning",
-        "reading_comprehension_MCQ",
-        "reading_comprehension_true_false_not_given",
-        "paragraph_writing"
-      ],
-      "typical_prompt_style": "Underline the option that best expresses the meaning of each of the sentences given below in bold print.Read the following [BLANK] and answer the questions. Underline the most appropriate response in each of the questions from [BLANK] - [BLANK].Do the following statements agree with the information given in the above text? In boxes [BLANK], write True, False or Not Given.Write a paragraph beginning with the given sentence. Use about [BLANK] - [BLANK] words. Do not exceed the word limit. Do not write more than one paragraph."
-    },
-    {
-      "id": "reading_skills_paper2",
-      "title": "Reading Skills (Paper II, Part A)",
+      "id": "secA-reading",
+      "title": "PART A - READING SKILLS",
       "marks": 50,
-      "instructions": "Answer all questions in this section.",
+      "instructions": "Read the following texts and poems carefully and answer the questions that follow, using the provided information and inferring where necessary.",
       "question_types": [
-        "vocabulary_in_context_MCQ",
-        "reading_comprehension_true_false_not_given",
-        "reading_comprehension_MCQ",
-        "fill-in-the-blank_from_passage",
-        "pronoun_reference"
+        "vocabulary-in-context",
+        "true-false-not-given",
+        "multiple-choice-comprehension",
+        "fill-in-the-blank",
+        "pronoun-reference",
+        "synonym-matching"
       ],
-      "typical_prompt_style": "Read the following text in which some words are given in bold type. Then, underline the meaning that is most appropriate to the context for the words given in bold type from [BLANK] - [BLANK].Read the following text and answer the questions. Do the following statements agree with the information given in the above text? In boxes [BLANK], write True or False.Underline the most appropriate response to complete the following sentences.Read the following poem and underline the most appropriate response to each of the questions from [BLANK] - [BLANK].Fill in the blanks using one word from the passage in each space.Who or what do the following pronouns in bold print refer to?Write one word in each blank, selecting from the passage, which means the same as the following."
+      "typical_prompt_style": "Read the following text in which some words are given in bold type. Then, underline the meaning that is most appropriate to the context for the words given in bold type from ([BLANK]) - ([BLANK]).; Read the following text and answer the questions ([BLANK]) and ([BLANK]). Do the following statements agree with the information given in the above text? In boxes ([BLANK]) - ([BLANK]), write True or False.; Underline the most appropriate response to complete the following sentences.; Read the following [BLANK] and underline the most appropriate response to each of the questions from ([BLANK]) - ([BLANK]).; Fill in the blanks using one word from the passage in each space.; Who or what do the following pronouns in bold print refer to? ([BLANK]); Write one word in each blank, selecting from the passage, which means the same as the following: [BLANK]"
     },
     {
-      "id": "dialogues_paper2",
-      "title": "Dialogues (Paper II, Part B)",
+      "id": "secB-dialogues",
+      "title": "PART B - DIALOGUES",
       "marks": 25,
-      "instructions": "Answer all questions in this section.",
+      "instructions": "Respond appropriately to given situations, or complete and create dialogues as instructed, adhering to specified sentence limits.",
       "question_types": [
-        "situational_response",
-        "dialogue_completion",
-        "dialogue_writing"
+        "situational-response",
+        "dialogue-completion",
+        "dialogue-writing"
       ],
-      "typical_prompt_style": "How do you respond in each of the following situations? Write only one sentence or question for each, beginning with the word/s given.Complete the following dialogue between [BLANK] and [BLANK]. Do not use more than two sentences/ questions in each blank.Imagine that you [BLANK], and you have to [BLANK] with your friend. Write out the dialogue between your friend and you. Each one should speak at least [BLANK] times."
+      "typical_prompt_style": "How do you respond in each of the following situations? Write only one sentence or question for each, beginning with the word/s given.; Complete the following dialogue between [BLANK] and [BLANK]. Do not use more than two sentences/ questions in each blank.; Imagine that you [BLANK]. Write out the dialogue between your friend and you. Each one should speak at least five times."
     },
     {
-      "id": "writing_skills_paper2",
-      "title": "Writing Skills (Paper II, Part C)",
+      "id": "secC-writing",
+      "title": "PART C - WRITING SKILLS",
       "marks": 65,
-      "instructions": "Answer all questions in this section.",
+      "instructions": "Demonstrate writing proficiency through various tasks including sentence construction, data description, and extended writing forms such as emails, letters, and essays.",
       "question_types": [
-        "sentence_construction_vocabulary",
-        "data_description_writing",
-        "email_writing",
-        "cover_letter_writing",
-        "essay_writing_opinion"
+        "sentence-construction",
+        "data-description-report",
+        "email-writing",
+        "cover-letter-writing",
+        "essay-writing"
       ],
-      "typical_prompt_style": "Select any [BLANK] words from the list of nouns, verbs, adjectives and adverbs given below and use each one of them in a meaningful sentence. You may use the verbs in any tense. Do not change the form of the other words.The [BLANK] below shows the percentage of [BLANK] in the [BLANK] and [BLANK] districts in [BLANK]. Describe the information by reporting the main features and making comparisons where relevant. Use about [BLANK] words.Imagine that you plan to [BLANK], and write an email to your friend describing your plan and inviting him/her to join you. In your email, include the following: [BLANK] [BLANK] You may include any relevant details but do not exceed [BLANK] words.You see an advertisement in a local newspaper for the post of [BLANK]. Qualifications required: [BLANK] [BLANK] [BLANK] Imagine that you have the required qualifications. Write a cover letter, applying for the post. Do NOT write a CV. Use about [BLANK] - [BLANK] words for the body of the letter. Do not exceed the word limit.Some people think that [BLANK] is better than [BLANK]. Others disagree and believe that [BLANK] is the best. What is your opinion? Write an essay, giving your views on this. Use about [BLANK] - [BLANK] words. Do not exceed the word limit."
+      "typical_prompt_style": "Select any five words from the list of nouns, verbs, adjectives and adverbs given below and use each one of them in a meaningful sentence. You may use the verbs in any tense. Do not change the form of the other words.; The bar chart below shows the percentage of people wearing different types of masks in the [BLANK] and [BLANK] districts in [BLANK]. Describe the information by reporting the main features and making comparisons where relevant. Use about [BLANK] words.; Imagine that you plan to go on a trip after the [BLANK] exam, and write an email to your friend describing your plan and inviting him/her to join you. In your email, include the following: [BLANK]. You may include any relevant details but do not exceed [BLANK] words.; You see an advertisement in a local newspaper for the post of [BLANK]. Qualifications required: [BLANK]. Imagine that you have the required qualifications. Write a cover letter, applying for the post. Do NOT write a CV. Use about [BLANK]-[BLANK] words for the body of the letter. Do not exceed the word limit.; Some people think that [BLANK]. Others disagree and believe that [BLANK]. What is your opinion? Write an essay, giving your views on this. Use about [BLANK]-[BLANK] words. Do not exceed the word limit."
     }
   ]
 }

@@ -2,42 +2,55 @@
   "subject": "General English",
   "board": "Department of Examinations Sri Lanka",
   "level": "GCE Advanced Level",
-  "duration_minutes": 60,
-  "total_marks": 60,
-  "tone_notes": "Formal and objective for instructions and grammar examples. Vocabulary level is intermediate. Reading passages are factual or narrative snippets. Questions require precise understanding of grammar rules, word usage, and comprehension of short texts. Answers should be concise and grammatically correct.",
+  "duration_minutes": 190,
+  "total_marks": 140,
+  "tone_notes": "Formal and academic register. Vocabulary level is advanced (A-Level). Passages cover diverse topics including news articles, narratives, factual texts (e.g., on technology, social issues, biographies), data interpretations, and poetry. Instructions are precise and direct. Formatting conventions include numbered questions, bolding for key terms, and specific word limits for writing tasks.",
   "instructions_pattern": [
+    "Use additional reading time to go through the question paper and decide on the questions that you give priority in answering.",
     "Answer all questions on this paper itself.",
     "Marks will be deducted for bad punctuation (Omission of full stops, capital letters, etc.) and for mistakes in basic grammar.",
     "The supervisor will provide you with sheets for rough work."
   ],
   "sections": [
     {
-      "id": "partA",
-      "title": "PART A — GRAMMAR and VOCABULARY",
-      "marks": 35,
-      "instructions": "Answer all questions in this section related to Grammar and Vocabulary.",
+      "id": "readingSkills",
+      "title": "PART A - READING SKILLS",
+      "marks": 50,
+      "instructions": "Read the following text/poem/summary and answer the questions/complete the blanks as instructed.",
       "question_types": [
-        "fill-in-the-blank",
         "multiple-choice",
-        "verb-conjugation",
-        "word-choice",
-        "word-ending"
+        "true-false-not-given",
+        "word-meaning",
+        "fill-in-the-blanks",
+        "comprehension"
       ],
-      "typical_prompt_style": "Fill in the blanks in the following text, using the prepositions given in the box. Use each preposition only once. There is one preposition extra. OR Fill in each blank with the correct form of the verb given within brackets. OR Underline the most appropriate word from those given within brackets to fill in the blanks in the following text. OR Underline the correct word-ending, selecting from those given within brackets."
+      "typical_prompt_style": "Read the following text in which some words are given in bold type. Then, underline the meaning that is most appropriate to the context for the words given in bold type from (1) - (10).; Read the following text and answer the questions (I) and (II).; Do the following statements agree with the information given in the above text? Write True or False in the boxes (1) - (8).; Underline the most appropriate answer/response to complete the following sentences.; Read the following poem and do the activities that follow. Underline the most appropriate response. Write down a word, selecting from the poem, which means the same as '[BLANK]'. ; Complete the blanks of the summary meaningfully and appropriately, using one word only from the passage titled '[BLANK]'."
     },
     {
-      "id": "partB",
-      "title": "PART B — READING and WRITING",
+      "id": "dialogues",
+      "title": "PART B - DIALOGUES",
       "marks": 25,
-      "instructions": "Answer all questions in this section related to Reading and Writing.",
+      "instructions": "Respond to situations/complete dialogues/write dialogues as instructed.",
       "question_types": [
-        "multiple-choice",
-        "sentence-meaning",
-        "reading-comprehension",
-        "true-false-not-given",
-        "paragraph-writing"
+        "short-response",
+        "dialogue-completion",
+        "dialogue-writing"
       ],
-      "typical_prompt_style": "Underline the option that best expresses the meaning of each of the sentences given below in bold print. OR Read the following four news items and answer the questions (I) and (II). (I) Underline the most appropriate response in each of the questions from (1) - (5). (II) Do the following statements agree with the information given in the above news items? In boxes (6) - (10), write True, False or Not Given. OR Write a paragraph beginning with the given sentence. Use about 75 - 100 words. Do not exceed the word limit. Do not write more than one paragraph. [BLANK]"
+      "typical_prompt_style": "How do you respond in each of the following situations? Write only one sentence or question for each, beginning with the word/s given.; Complete the following dialogue between [BLANK] and [BLANK]. Do not use more than two sentences/questions in each blank.; Imagine that you [BLANK]. Write out the dialogue between your friend and you. Each one should speak at least five times."
+    },
+    {
+      "id": "writingSkills",
+      "title": "PART C - WRITING SKILLS",
+      "marks": 65,
+      "instructions": "Construct sentences/describe data/write letters/emails/essays as instructed.",
+      "question_types": [
+        "sentence-construction",
+        "data-interpretation-writing",
+        "email-writing",
+        "letter-writing",
+        "essay-writing"
+      ],
+      "typical_prompt_style": "Select any five words from the list of nouns, verbs, adjectives and adverbs given below and use each one of them in a meaningful sentence. You may use the verbs in any tense. Do NOT change the form of the other words.; The bar chart below shows the [BLANK]. Describe the information given in the bar chart by reporting the main features and making comparisons where relevant. Use about [BLANK] words.; Imagine that you [BLANK]. Write a letter/email to your friend [BLANK]. In your letter/email, include the following details: [BLANK]. Use about [BLANK] words.; You see an advertisement in a local newspaper for the post of [BLANK]. Qualifications required: [BLANK]. Imagine that you have the required qualifications. Write a cover letter, applying for the post. Do NOT write a CV. Use about [BLANK] words for the body of the letter. Do not exceed the word limit.; Some people believe that [BLANK]. Others think that [BLANK]. Discuss both views and give your opinions. Write an essay, giving your views on this. Use about [BLANK] words. Do not exceed the word limit."
     }
   ]
 }
