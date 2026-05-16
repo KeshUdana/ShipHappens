@@ -13,7 +13,10 @@ from app.config import Settings
 from fastapi import APIRouter
 
 # routers
-from app.routers import sessions, sourcefiles, papers, generation, questions, style, blueprint
+from app.routers import (
+    sessions, sourcefiles, papers, generation, questions, style, blueprint,
+    answer_key, regenerate, dedup, stream,
+)
 
 # Initialize settings
 settings = Settings()
@@ -73,6 +76,10 @@ app.include_router(papers.router)
 app.include_router(generation.router)
 app.include_router(questions.router)
 app.include_router(style.router)
+app.include_router(answer_key.router)
+app.include_router(regenerate.router)
+app.include_router(dedup.router)
+app.include_router(stream.router)
 
 
 if __name__ == "__main__":
