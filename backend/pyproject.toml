@@ -23,6 +23,7 @@ dependencies = [
     "python-multipart>=0.0.28",
     "sqlmodel>=0.0.38",
     "supabase>=2.30.0",
+    "sympy>=1.14.0",
     "uvicorn[standard]>=0.47.0",
 ]
 
@@ -32,3 +33,10 @@ test = "app.test_runner:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["app"]
+
+[dependency-groups]
+dev = [
+    "pandas>=3.0.3",
+    "plotly>=6.8.0",
+    "streamlit>=1.58.0",
+]

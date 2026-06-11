@@ -53,6 +53,30 @@ Open http://localhost:3000 — the dashboard should load. Click **Generate Paper
 | 3. Edit | Hover any question → **Edit** (instant, local) or **Regenerate** (~10–20 s, replaces the question with a new one worth the same marks). Sections can be regenerated too | Edited/regenerated content is spliced into the paper in place |
 | 4. Export | **Print / Save PDF** (browser print-to-PDF) · **Generate Answer Key** (~30–60 s, model answers + marking criteria from your *edited* paper) · **Check Originality** (~10–30 s, flags overlap with the source PDFs) | A print-ready paper, a full marking scheme, and similarity warnings if any |
 
+## Testing the app after startup
+
+Test in two passes — a quick smoke check, then the real flow.
+
+### Pass 1: Smoke check (~30 seconds, no PDFs needed)
+
+1. **Backend alive?** Open http://localhost:8000/health → `{"status":"healthy","app":"ShipHappens"}`
+2. **Frontend alive?** Open http://localhost:3000 → dashboard loads with the "Generate a New Exam Paper" banner
+3. **Connected?** Go to http://localhost:3000/generate, open the browser console (F12 → Console). Click **Analyze & Generate Blueprint** without files → red toast "Please upload at least one PDF" (frontend validation works). Then drop in any PDF and click Analyze — if "Uploading 1/1…" changes to "Extracting blueprint…", the frontend→backend connection works. A CORS or "failed to fetch" error in the console means the backend isn't reachable.
+
+### Pass 2: Full flow test (~5 minutes, needs a real past-paper PDF)
+
+1. **Upload** a past-paper PDF + a title → Analyze → ~30–60 s → advances to Blueprint. Check the extracted sections/marks actually match your PDF.
+2. **Generate** → progress bar moves with "Writing Section A…" messages for ~1–2 min → advances to the editable paper.
+3. **Edit test:** hover a question → Edit → change one word → Save → green toast.
+4. **Regenerate test:** hover another question → Regenerate → greys out ~15 s → comes back as a *different* question with the same marks.
+5. **Export page:** **Generate Answer Key** → marking scheme appears below the paper. **Check Originality** → toast with the result. **Print / Save PDF** → print dialog with a clean paper.
+
+### What "pass" looks like
+
+Every step completes without a red error toast, and the content at each step visibly relates to *your* uploaded PDF (right subject, sensible sections). If a step fails, the toast text comes straight from the backend — read it, then check the backend terminal for the matching log line to see whether it's a Gemini issue (key/quota), a database issue, or a missing upload.
+
+> First-run note: the very first blueprint extraction also uploads your PDFs to Gemini's file storage, so it's the slowest step. The same session reuses those cached uploads, so retries are faster.
+
 ## Rules & gotchas
 
 - **Do not refresh the page mid-wizard.** The generated paper lives in browser memory — F5 restarts the flow from step 1.

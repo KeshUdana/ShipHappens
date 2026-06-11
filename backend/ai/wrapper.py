@@ -90,6 +90,30 @@ def _extract_usage(response) -> tuple[int, int, int]:
 
 OnUsage = Callable[[UsageRecord], None]
 
+# Global usage hooks — notified for every call_structured attempt in addition
+# to any per-call on_usage callback. Lets out-of-band consumers (eval runner,
+# cost dashboards) observe token spend without threading a callback through
+# every public AI function.
+_usage_hooks: list[OnUsage] = []
+
+
+def add_usage_hook(hook: OnUsage) -> None:
+    if hook not in _usage_hooks:
+        _usage_hooks.append(hook)
+
+
+def remove_usage_hook(hook: OnUsage) -> None:
+    if hook in _usage_hooks:
+        _usage_hooks.remove(hook)
+
+
+def _emit_usage(record: UsageRecord, on_usage: Optional[OnUsage]) -> None:
+    for hook in [*(_usage_hooks), *([on_usage] if on_usage else [])]:
+        try:
+            hook(record)
+        except Exception:
+            logger.exception("Usage hook raised; ignoring.")
+
 
 def call_structured(
     model: str,
@@ -149,14 +173,13 @@ def call_structured(
                 post_validate(result)
 
             # Record usage on success
-            if on_usage is not None:
-                inp, out, tot = _extract_usage(response)
-                on_usage(UsageRecord(
-                    label=label, model=model,
-                    input_tokens=inp, output_tokens=out, total_tokens=tot,
-                    cost_usd=_estimate_cost(model, inp, out),
-                    status="success",
-                ))
+            inp, out, tot = _extract_usage(response)
+            _emit_usage(UsageRecord(
+                label=label, model=model,
+                input_tokens=inp, output_tokens=out, total_tokens=tot,
+                cost_usd=_estimate_cost(model, inp, out),
+                status="success",
+            ), on_usage)
 
             if attempt > 1:
                 logger.info("[%s] Succeeded on attempt %d.", label, attempt)
@@ -170,23 +193,23 @@ def call_structured(
                 label, attempt, total_attempts, exc, raw,
             )
             # Record usage on parse failure too (tokens were still spent)
-            if on_usage is not None and response is not None:
+            if response is not None:
                 inp, out, tot = _extract_usage(response)
-                on_usage(UsageRecord(
+                _emit_usage(UsageRecord(
                     label=label, model=model,
                     input_tokens=inp, output_tokens=out, total_tokens=tot,
                     cost_usd=_estimate_cost(model, inp, out),
                     status="failed",
                     error_message=f"parse: {exc}",
-                ))
+                ), on_usage)
 
-    if on_usage is not None and response is None:
+    if response is None:
         # All attempts failed before we even got a response (e.g. quota)
-        on_usage(UsageRecord(
+        _emit_usage(UsageRecord(
             label=label, model=model,
             input_tokens=0, output_tokens=0, total_tokens=0, cost_usd=0.0,
             status="failed", error_message=str(last_exc),
-        ))
+        ), on_usage)
 
     raise RuntimeError(
         f"[{label}] All {total_attempts} attempt(s) failed. Last error: {last_exc}"

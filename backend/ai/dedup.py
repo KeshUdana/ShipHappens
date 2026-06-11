@@ -29,9 +29,8 @@ import re
 from pathlib import Path
 
 import fitz  # pymupdf
-from google.genai import types
 
-from ai.client import client
+from ai.embeddings import cosine, embed_texts
 from ai.schemas import DuplicateWarning, PaperSchema
 
 logger = logging.getLogger(__name__)
@@ -39,7 +38,7 @@ logger = logging.getLogger(__name__)
 
 # ── Config ───────────────────────────────────────────────────────────────────
 
-EMBED_MODEL = "text-embedding-004"
+EMBED_MODEL = "gemini-embedding-001"  # text-embedding-004 was retired (404s on v1beta)
 HIGH_THRESHOLD = 0.90
 MEDIUM_THRESHOLD = 0.80
 MIN_CHUNK_CHARS = 60   # ignore very short fragments (headers, page numbers)
@@ -78,24 +77,16 @@ def _extract_chunks(pdf_path: Path) -> list[str]:
 
 
 # ── Embedding helpers ───────────────────────────────────────────────────────
+# Thin wrappers over the shared embedding service (ai/embeddings.py, S2-05) so
+# dedup, ingestion, and retrieval all share one model, dimension, and cost hook.
 
 
 def _embed_texts(texts: list[str]) -> list[list[float]]:
-    """Embed a batch of texts with the Gemini embedding model."""
-    if not texts:
-        return []
-    logger.info("[dedup] Embedding %d text(s) with %s...", len(texts), EMBED_MODEL)
-    response = client.models.embed_content(
-        model=EMBED_MODEL,
-        contents=texts,  # type: ignore[arg-type]
-        config=types.EmbedContentConfig(task_type="SEMANTIC_SIMILARITY"),
-    )
-    return [e.values for e in response.embeddings]
+    return embed_texts(texts)
 
 
 def _cosine(a: list[float], b: list[float]) -> float:
-    """Cosine similarity. Vectors from text-embedding-004 are already L2-normalised."""
-    return sum(x * y for x, y in zip(a, b))
+    return cosine(a, b)
 
 
 def _severity(sim: float) -> str:
