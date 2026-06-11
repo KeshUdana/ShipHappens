@@ -1272,6 +1272,278 @@
 </section>
 
 <!-- ============================================ -->
+<section id="sprint-v02">
+  <h2>7.5 v0.2 AI Enhancements (post-MVP)</h2>
+  <p class="section-lead">Six follow-up AI features built on top of the shipped MVP. All ride the same <code>ai/wrapper.py:call_structured</code> entry point and reuse <code>ai/schemas.py</code>. None of these are required for the h20 demo — they extend it. Estimated total: <strong>~7.5 hours of AI work</strong>. See build.html §12 for the architectural rationale.</p>
+
+  <!-- PBI-25 -->
+  <article class="pbi ai" id="pbi-25">
+    <div class="pbi-head">
+      <div class="pbi-title"><span class="pbi-id">PBI-25</span><span class="pbi-name">Difficulty Score (1–5) per Question</span></div>
+      <div class="pbi-meta"><span class="owner-pill ai">AI</span><span class="pbi-hours">1h · v0.2</span></div>
+    </div>
+    <div class="pbi-body">
+      <p class="pbi-desc">Add a <code>difficulty</code> field (1=trivial recall → 5=top-band stretch) to every generated question. Asked for as part of the existing paper-generation call — no extra Gemini hit. Frontend can render a balanced-paper indicator and let teachers see the difficulty distribution at a glance.</p>
+      <div class="pbi-grid">
+        <div class="pbi-block">
+          <h4>Depends on</h4>
+          <p><span class="dep-pill">PBI-12</span></p>
+          <h4>Files touched</h4>
+          <ul>
+            <li><code>backend/ai/schemas.py</code> — add <code>Question.difficulty: int = Field(ge=1, le=5, default=3)</code></li>
+            <li><code>backend/ai/generate.py</code> — append difficulty-rating instruction to the generate prompt</li>
+            <li><code>backend/ai/samples/paper_setA.json</code> — regenerate to include difficulty values</li>
+          </ul>
+          <h4>Blocks</h4>
+          <p>FE balanced-paper indicator (out of scope for AI engineer).</p>
+        </div>
+      </div>
+      <div class="pbi-subtasks">
+        <h4>Subtasks</h4>
+        <ol>
+          <li>Add <code>difficulty</code> field to <code>Question</code> in <code>ai/schemas.py</code> with a clear docstring (1=trivial recall, 3=standard A-Level / O-Level, 5=challenging).</li>
+          <li>Append a constraint to <code>_PROMPT_TEMPLATE</code> in <code>generate.py</code>: "Difficulty rating: for each question, set difficulty (1-5). Aim for a balanced distribution: most questions at 2-3, a few at 4-5 toward the end."</li>
+          <li>Re-run <code>uv run python -m ai.gen_paper_samples</code> to refresh both sample papers.</li>
+          <li>Spot-check that the difficulty values vary across questions and trend upward toward harder sections (essay > MCQ).</li>
+          <li>Notify FE that the schema has a new field — <code>Question.difficulty</code> is now part of the contract.</li>
+        </ol>
+      </div>
+      <div class="pbi-accept">
+        <h4>Acceptance</h4>
+        <ul>
+          <li>Every question in <code>paper_setA.json</code> and <code>paper_setB.json</code> has a <code>difficulty</code> value between 1 and 5.</li>
+          <li>Distribution is balanced — not every question is "3".</li>
+          <li>Pydantic validation rejects difficulty values outside 1–5.</li>
+        </ul>
+      </div>
+    </div>
+  </article>
+
+  <!-- PBI-26 -->
+  <article class="pbi ai" id="pbi-26">
+    <div class="pbi-head">
+      <div class="pbi-title"><span class="pbi-id">PBI-26</span><span class="pbi-name">Token / Cost Tracking in Wrapper</span></div>
+      <div class="pbi-meta"><span class="owner-pill ai">AI</span><span class="pbi-hours">30m · v0.2</span></div>
+    </div>
+    <div class="pbi-body">
+      <p class="pbi-desc">Instrument <code>call_structured</code> to capture token usage and per-call USD cost. The existing <code>api_usage_log</code> table is already in the schema (PBI-03) — we just need to feed it. Free observability for the demo cost breakdown ("we spent $0.04 generating this paper").</p>
+      <div class="pbi-grid">
+        <div class="pbi-block">
+          <h4>Depends on</h4>
+          <p><span class="dep-pill">PBI-19</span></p>
+          <h4>Files touched</h4>
+          <ul>
+            <li><code>backend/ai/wrapper.py</code> — add <code>UsageRecord</code> dataclass, <code>_PRICING_USD_PER_MTOKENS</code> table, <code>_extract_usage()</code>, <code>on_usage</code> callback param</li>
+            <li><code>backend/ai/blueprint.py</code>, <code>generate.py</code>, <code>regenerate.py</code> — accept and forward an optional <code>on_usage</code> kwarg</li>
+            <li><code>backend/app/routers/blueprint.py</code> (and friends) — wire a DB-writing callback that creates <code>ApiUsageLog</code> rows</li>
+          </ul>
+        </div>
+      </div>
+      <div class="pbi-subtasks">
+        <h4>Subtasks</h4>
+        <ol>
+          <li>Define <code>UsageRecord(label, model, input_tokens, output_tokens, total_tokens, cost_usd, status, error_message)</code> dataclass in <code>wrapper.py</code>.</li>
+          <li>Maintain a tiny <code>_PRICING_USD_PER_MTOKENS</code> dict for <code>gemini-2.5-flash</code>, <code>gemini-2.5-pro</code>, <code>text-embedding-004</code>, etc. (USD per million tokens).</li>
+          <li>Implement <code>_extract_usage(response)</code> reading <code>response.usage_metadata.prompt_token_count</code> / <code>candidates_token_count</code> / <code>total_token_count</code> defensively.</li>
+          <li>Add <code>on_usage: Optional[Callable[[UsageRecord], None]]</code> to <code>call_structured</code>. Call it on EVERY attempt — success AND parse-failure — so failed-but-billed calls are still recorded.</li>
+          <li>Propagate the param through <code>blueprint.extract_blueprint</code>, <code>generate.generate_paper</code>, <code>regenerate.regenerate_question</code>, <code>regenerate.regenerate_section</code>, <code>answer_key.generate_answer_key</code>.</li>
+          <li>In each FastAPI route, build a closure that takes <code>UsageRecord</code> and INSERTs an <code>ApiUsageLog</code> row (api_provider="gemini", operation=record.label, tokens_used=record.total_tokens, cost_usd=record.cost_usd, status=record.status, session_id=session_id).</li>
+        </ol>
+      </div>
+      <div class="pbi-accept">
+        <h4>Acceptance</h4>
+        <ul>
+          <li>After running through the full wizard, <code>SELECT operation, tokens_used, cost_usd FROM api_usage_log WHERE session_id = ?</code> returns ≥ 3 rows (blueprint, generate, plus any regenerates).</li>
+          <li><code>cost_usd</code> is non-zero and within ±20% of the actual Google billing for the same call.</li>
+          <li>Wrapper still works when <code>on_usage</code> is omitted (default behaviour unchanged).</li>
+        </ul>
+      </div>
+    </div>
+  </article>
+
+  <!-- PBI-27 -->
+  <article class="pbi ai" id="pbi-27">
+    <div class="pbi-head">
+      <div class="pbi-title"><span class="pbi-id">PBI-27</span><span class="pbi-name">Answer Key + Marking Scheme Generation</span></div>
+      <div class="pbi-meta"><span class="owner-pill ai">AI</span><span class="pbi-hours">2h · v0.2</span></div>
+    </div>
+    <div class="pbi-body">
+      <p class="pbi-desc">Highest-value v0.2 feature. Teachers want a marking scheme more than they want the paper itself. One <code>gemini-2.5-flash</code> call takes a <code>PaperSchema</code> and produces a 1:1 mapped <code>AnswerKeySchema</code> containing model answers, mark-by-mark criteria, and common candidate mistakes for every question (and every sub-part).</p>
+      <div class="pbi-grid">
+        <div class="pbi-block">
+          <h4>Depends on</h4>
+          <p><span class="dep-pill">PBI-12</span></p>
+          <h4>Files touched</h4>
+          <ul>
+            <li><code>backend/ai/schemas.py</code> — add <code>AnswerKeySchema</code>, <code>SectionAnswerKey</code>, <code>QuestionAnswer</code>, <code>SubPartAnswer</code></li>
+            <li><code>backend/ai/answer_key.py</code> — new module with <code>generate_answer_key(paper) -&gt; AnswerKeySchema</code></li>
+            <li><code>backend/app/routers/answer_key.py</code> — <code>POST /sessions/:id/answer-key</code></li>
+            <li><code>backend/ai/samples/answer_key_setA.json</code> — sample output for FE mocking</li>
+            <li><code>backend/ai/gen_answer_key_sample.py</code> — sample-generation script</li>
+          </ul>
+          <h4>Blocks</h4>
+          <p>FE "Show Answer Key" toggle on the Editable Paper page (FE work, out of scope here).</p>
+        </div>
+      </div>
+      <div class="pbi-subtasks">
+        <h4>Subtasks</h4>
+        <ol>
+          <li>Define <code>QuestionAnswer { question_id, model_answer, marking_criteria[], sub_part_answers[], common_mistakes[] }</code>, <code>SectionAnswerKey { section_id, section_title, answers[] }</code>, <code>AnswerKeySchema { paper_title, total_marks, sections[] }</code>.</li>
+          <li>Build the prompt: "You are an experienced examiner. For every question, produce a high-band model answer, 2-5 marking-criteria bullets summing to the question's marks, and 1-3 common mistakes."</li>
+          <li>Implement <code>_validate_answer_key(key, paper)</code> as a post-validate hook: every paper question_id must appear in the key; total_marks must match.</li>
+          <li>Wire the route at <code>POST /sessions/:id/answer-key</code> taking the current <code>PaperSchema</code> in the body (so it answers the EDITED paper, not the original).</li>
+          <li>Run against <code>paper_setA.json</code>, save <code>answer_key_setA.json</code> for FE mocking.</li>
+          <li>Notify FE — they can swap in the real endpoint as soon as the Editable Paper page has a "Show Answer Key" toggle.</li>
+        </ol>
+      </div>
+      <div class="pbi-accept">
+        <h4>Acceptance</h4>
+        <ul>
+          <li><code>generate_answer_key(paper_setA)</code> returns an <code>AnswerKeySchema</code> with one entry per question.</li>
+          <li>Every <code>question_id</code> in the paper appears in the key; the post-validate hook rejects missing entries with a retry.</li>
+          <li>Sample <code>answer_key_setA.json</code> committed for FE.</li>
+          <li>For an MCQ question, <code>model_answer</code> is the exact correct option; for an essay, it is a 3-5 sentence outline; for fill-in-the-blank, it is the exact correct word(s).</li>
+        </ul>
+      </div>
+    </div>
+  </article>
+
+  <!-- PBI-28 -->
+  <article class="pbi ai" id="pbi-28">
+    <div class="pbi-head">
+      <div class="pbi-title"><span class="pbi-id">PBI-28</span><span class="pbi-name">Per-Section Regeneration</span></div>
+      <div class="pbi-meta"><span class="owner-pill ai">AI</span><span class="pbi-hours">1h · v0.2</span></div>
+    </div>
+    <div class="pbi-body">
+      <p class="pbi-desc">Mirror of <code>regenerate_question</code>, scoped to a whole section. Replaces every question in a section with new content while preserving the section's id, marks total, question count, and every question's id / marks / number. Closes the editing UX gap — currently teachers can only nudge one question at a time.</p>
+      <div class="pbi-grid">
+        <div class="pbi-block">
+          <h4>Depends on</h4>
+          <p><span class="dep-pill">PBI-13</span> <span class="dep-pill">PBI-19</span></p>
+          <h4>Files touched</h4>
+          <ul>
+            <li><code>backend/ai/regenerate.py</code> — append <code>regenerate_section(paper, blueprint, section_id, nudge?)</code> and <code>_SECTION_PROMPT_TEMPLATE</code></li>
+            <li><code>backend/app/routers/regenerate.py</code> — new <code>POST /sessions/:id/regenerate/section</code></li>
+            <li><code>backend/ai/test_regenerate.py</code> — extend to test the section-level path</li>
+          </ul>
+        </div>
+      </div>
+      <div class="pbi-subtasks">
+        <h4>Subtasks</h4>
+        <ol>
+          <li>Add <code>_find_section(paper, section_id) -&gt; SectionPaper</code> helper.</li>
+          <li>Write a prompt template that includes: the original section JSON, the section's blueprint (question_types, typical_prompt_style), the paper tone, an explicit list of original question ids (to preserve), and the marks-per-question sequence.</li>
+          <li>Add <code>_validate_regenerated_section(new_sec, original, section_id)</code> post-validate: section id matches, marks total matches, question count matches, marks sum matches.</li>
+          <li>Implement <code>regenerate_section()</code> calling <code>call_structured(..., schema=SectionPaper)</code> with that post-validate.</li>
+          <li>Add a new request body model in the route: <code>{ paper, blueprint, section_id, nudge? }</code>.</li>
+          <li>Test: regenerate one short section, confirm question ids are preserved and content is materially different from the original.</li>
+        </ol>
+      </div>
+      <div class="pbi-accept">
+        <h4>Acceptance</h4>
+        <ul>
+          <li>Returns a <code>SectionPaper</code> whose <code>id</code>, <code>marks</code>, and question count match the original exactly.</li>
+          <li>Each new question keeps its original <code>id</code>, <code>marks</code>, and <code>number</code> (frontend uses these as React keys).</li>
+          <li>Sum of new question marks equals the section's marks total.</li>
+          <li>Test re-runs on the same input produce different content (no caching / determinism issues).</li>
+        </ul>
+      </div>
+    </div>
+  </article>
+
+  <!-- PBI-29 -->
+  <article class="pbi ai" id="pbi-29">
+    <div class="pbi-head">
+      <div class="pbi-title"><span class="pbi-id">PBI-29</span><span class="pbi-name">Embedding-Based Duplicate Guard (pgvector)</span></div>
+      <div class="pbi-meta"><span class="owner-pill ai">AI</span><span class="pbi-hours">2h · v0.2</span></div>
+    </div>
+    <div class="pbi-body">
+      <p class="pbi-desc">Insurance against the demo-killer "your generated paper has a question identical to source paper 2". Extracts paragraph-sized chunks from the source PDFs (via pymupdf), embeds them and every generated question with Gemini's <code>text-embedding-004</code>, flags cosine similarity ≥ 0.80 (medium) / ≥ 0.90 (high). Reuses the <code>pgvector</code> extension and <code>question_embedding</code> table already in the schema — ready to grow into a cross-session question bank.</p>
+      <div class="pbi-grid">
+        <div class="pbi-block">
+          <h4>Depends on</h4>
+          <p><span class="dep-pill">PBI-12</span></p>
+          <h4>Files touched</h4>
+          <ul>
+            <li><code>backend/ai/dedup.py</code> — new module with <code>check_duplicates(paper, source_pdf_paths, threshold=0.80)</code></li>
+            <li><code>backend/ai/schemas.py</code> — add <code>DuplicateWarning { question_id, similarity, matched_source_snippet, severity }</code></li>
+            <li><code>backend/app/routers/dedup.py</code> — <code>POST /sessions/:id/dedup</code></li>
+          </ul>
+          <h4>Blocks</h4>
+          <p>FE warning banner on the Editable Paper page (out of scope for AI engineer).</p>
+        </div>
+      </div>
+      <div class="pbi-subtasks">
+        <h4>Subtasks</h4>
+        <ol>
+          <li>Write <code>_extract_chunks(pdf_path)</code> using pymupdf — split on blank lines, normalise whitespace, reject chunks &lt; 60 chars (headers / page numbers), split chunks &gt; 800 chars at sentence boundaries.</li>
+          <li>Implement <code>_embed_texts(texts)</code> using <code>client.models.embed_content(model="text-embedding-004", task_type="SEMANTIC_SIMILARITY")</code>.</li>
+          <li>Implement <code>_cosine(a, b)</code> — since <code>text-embedding-004</code> outputs are L2-normalised, this is a plain dot product.</li>
+          <li>Concatenate each question's <code>prompt + context_passage + sub_parts[*].prompt</code> as the comparison text.</li>
+          <li>For each generated text, find the nearest source chunk and emit a <code>DuplicateWarning</code> if similarity ≥ threshold. Severity: high ≥ 0.90, medium ≥ 0.80, low &lt; 0.80.</li>
+          <li>Wire <code>POST /sessions/:id/dedup</code> taking <code>{ paper, threshold? }</code> in the body; look up the session's <code>SourceFile</code> rows for local paths.</li>
+          <li>Smoke-test: deliberately ask the generator to include a verbatim source passage — confirm the dedup endpoint flags it as "high".</li>
+        </ol>
+      </div>
+      <div class="pbi-accept">
+        <h4>Acceptance</h4>
+        <ul>
+          <li><code>check_duplicates</code> returns an empty list for a clean generation against the sample PDFs.</li>
+          <li>When a verbatim source passage is forced into the paper, dedup returns at least one warning with <code>severity="high"</code> and <code>similarity &gt; 0.9</code>.</li>
+          <li>Output sorted by descending <code>similarity</code> so the FE can show the worst offenders first.</li>
+        </ul>
+      </div>
+    </div>
+  </article>
+
+  <!-- PBI-30 -->
+  <article class="pbi ai" id="pbi-30">
+    <div class="pbi-head">
+      <div class="pbi-title"><span class="pbi-id">PBI-30</span><span class="pbi-name">SSE Streaming Paper Generation</span></div>
+      <div class="pbi-meta"><span class="owner-pill ai">AI</span><span class="pbi-hours">1h · v0.2</span></div>
+    </div>
+    <div class="pbi-body">
+      <p class="pbi-desc">Turns the slowest UX moment (30–90s pro-model paper generation) into the slickest one. Yields progress events via Server-Sent Events as Gemini streams output. The frontend consumes with <code>EventSource</code> and shows "Section A done…", "Section B done…" instead of an infinite spinner.</p>
+      <div class="pbi-grid">
+        <div class="pbi-block">
+          <h4>Depends on</h4>
+          <p><span class="dep-pill">PBI-12</span></p>
+          <h4>Files touched</h4>
+          <ul>
+            <li><code>backend/ai/generate.py</code> — append <code>generate_paper_stream(blueprint, file_uris)</code> generator</li>
+            <li><code>backend/app/routers/stream.py</code> — <code>POST /sessions/:id/generate/stream</code> returning <code>StreamingResponse</code></li>
+          </ul>
+        </div>
+      </div>
+      <div class="pbi-subtasks">
+        <h4>Subtasks</h4>
+        <ol>
+          <li>Use <code>client.models.generate_content_stream(model=fast_model, ...)</code> with the same <code>response_schema=PaperSchema</code> config.</li>
+          <li>Accumulate chunks in a buffer; for each chunk emit <code>{event:"chunk", chars: len(buffer), sections_seen: N}</code>.</li>
+          <li>Heuristically detect section completions by scanning the buffer for each <code>blueprint.section.id</code> as it appears in the streamed JSON. When seen for the first time, emit <code>{event:"section", section_id, title}</code>.</li>
+          <li>After the stream finishes, parse the full buffer with <code>PaperSchema.model_validate_json</code> and emit <code>{event:"complete", paper}</code>.</li>
+          <li>If domain validation (drift, etc.) fails, emit a <code>{event:"warning", message}</code> but still return the paper — the user can decide.</li>
+          <li>SSE route: encode each dict as <code>data: &lt;json&gt;\n\n</code>, set <code>media_type="text/event-stream"</code> and <code>X-Accel-Buffering: no</code> (for proxies).</li>
+        </ol>
+      </div>
+      <div class="pbi-accept">
+        <h4>Acceptance</h4>
+        <ul>
+          <li>Client connecting with <code>EventSource</code> receives the events in order: <code>start</code> → multiple <code>chunk</code> → multiple <code>section</code> → <code>complete</code>.</li>
+          <li>The final <code>complete</code> event payload validates against <code>PaperSchema</code>.</li>
+          <li>If Gemini errors mid-stream, a single <code>{event:"error", message}</code> is emitted and the connection closes cleanly (no hanging socket).</li>
+          <li>Total wall-clock time from request to <code>complete</code> is comparable to the non-streaming endpoint (streaming should not slow generation down).</li>
+        </ul>
+      </div>
+    </div>
+  </article>
+
+  <div class="milestone">
+    <strong>v0.2 — DONE:</strong> Answer keys, dedup guard, streaming, per-section regen, difficulty scoring, and cost tracking all shipped. Demo can show any subset depending on time.
+  </div>
+</section>
+
+<!-- ============================================ -->
 <section id="per-engineer">
   <h2>8. Per-engineer backlog</h2>
   <p class="section-lead">Each engineer's PBIs in order — copy your section into your local TODO list and tick off as you go.</p>
@@ -1287,6 +1559,16 @@
       <li><a href="#pbi-23">PBI-23</a> — AI Edge Case Hardening (2h, h16–h18)</li>
     </ol>
     <p style="font-size: 0.85rem; color: var(--ink-muted); margin-top: 8px;">Between h6 and h8 you're on standby — pair with FS1 on the blueprint endpoint integration. Between h18 and h20 help debug live demo issues.</p>
+    <p style="font-size: 0.85rem; color: var(--ink-muted); margin-top: 12px; font-weight: 600;">v0.2 stretch (post-MVP, ~7.5h total):</p>
+    <ol start="7">
+      <li><a href="#pbi-25">PBI-25</a> — Difficulty Score (1–5) per Question (1h)</li>
+      <li><a href="#pbi-26">PBI-26</a> — Token / Cost Tracking in Wrapper (30m)</li>
+      <li><a href="#pbi-27">PBI-27</a> — Answer Key + Marking Scheme Generation (2h)</li>
+      <li><a href="#pbi-28">PBI-28</a> — Per-Section Regeneration (1h)</li>
+      <li><a href="#pbi-29">PBI-29</a> — Embedding-Based Duplicate Guard (pgvector) (2h)</li>
+      <li><a href="#pbi-30">PBI-30</a> — SSE Streaming Paper Generation (1h)</li>
+    </ol>
+    <p style="font-size: 0.85rem; color: var(--ink-muted); margin-top: 8px;">Recommended order: PBI-25 → PBI-26 → PBI-27 → PBI-28 → PBI-29 → PBI-30. Each one is independently shippable — stop at any point and what's done is still useful.</p>
   </div>
 
   <div class="engineer-section fs1">

@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PaperForge — Cursor Buildathon Submission</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --black: #0a0a0a;
+    --dark: #111111;
+    --mid: #1e1e1e;
+    --border: #2a2a2a;
+    --accent: #4a9eff;
+    --accent2: #7c3aed;
+    --muted: #888;
+    --light: #f0f0f0;
+    --white: #ffffff;
+    --section-num: #333;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--white);
+    color: var(--black);
+    font-size: 11pt;
+    line-height: 1.6;
+  }
+
+  /* ── PRINT ── */
+  @media print {
+    body { font-size: 10pt; }
+    .page { page-break-after: always; break-after: page; }
+    .no-break { page-break-inside: avoid; break-inside: avoid; }
+    nav, .print-hide { display: none !important; }
+    a { color: inherit; text-decoration: none; }
+    .cover { min-height: 100vh; }
+  }
+
+  /* ── COVER ── */
+  .cover {
+    background: var(--black);
+    color: var(--white);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 60px;
+  }
+  .cover-top { display: flex; justify-content: space-between; align-items: flex-start; }
+  .cover-logo {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+  .cover-badge {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    text-transform: uppercase;
+    border: 1px solid #333;
+    padding: 6px 12px;
+    border-radius: 4px;
+  }
+  .cover-main { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 80px 0 40px; }
+  .cover-eyebrow {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.2em;
+    color: var(--accent); text-transform: uppercase; margin-bottom: 24px;
+  }
+  .cover-title {
+    font-size: 72px; font-weight: 900; line-height: 1;
+    letter-spacing: -0.03em; color: var(--white);
+    margin-bottom: 8px;
+  }
+  .cover-sub {
+    font-size: 18px; font-weight: 300; color: #aaa; margin-top: 20px;
+    max-width: 520px; line-height: 1.5;
+  }
+  .cover-divider { width: 48px; height: 3px; background: var(--accent); margin: 32px 0; }
+  .cover-meta { display: flex; gap: 48px; }
+  .cover-meta-item label { display: block; font-size: 9px; font-weight: 700; letter-spacing: 0.15em; color: var(--muted); text-transform: uppercase; margin-bottom: 4px; }
+  .cover-meta-item span { font-size: 13px; font-weight: 500; color: var(--white); }
+  .cover-bottom {
+    display: flex; justify-content: space-between; align-items: flex-end;
+    border-top: 1px solid #222; padding-top: 28px;
+  }
+  .cover-bottom-left { font-size: 9px; color: #555; letter-spacing: 0.1em; text-transform: uppercase; }
+  .cover-sponsors { display: flex; gap: 16px; align-items: center; }
+  .sponsor-tag {
+    font-size: 9px; font-weight: 700; letter-spacing: 0.12em;
+    color: #444; text-transform: uppercase;
+    border: 1px solid #2a2a2a; padding: 5px 10px; border-radius: 3px;
+  }
+  .sponsor-tag.active { color: #888; border-color: #444; }
+
+  /* ── TOC PAGE ── */
+  .toc-page {
+    background: var(--dark);
+    color: var(--white);
+    min-height: 100vh;
+    padding: 60px;
+    display: flex;
+    flex-direction: column;
+  }
+  .toc-header { margin-bottom: 60px; }
+  .toc-header p { font-size: 10px; font-weight: 700; letter-spacing: 0.18em; color: var(--muted); text-transform: uppercase; }
+  .toc-header h1 { font-size: 32px; font-weight: 800; margin-top: 8px; }
+  .toc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; flex: 1; }
+  .toc-item { padding: 24px 0; border-bottom: 1px solid #222; }
+  .toc-item:last-child, .toc-item:nth-last-child(2) { border-bottom: none; }
+  .toc-num { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; color: var(--accent); text-transform: uppercase; }
+  .toc-name { font-size: 16px; font-weight: 600; margin-top: 4px; }
+  .toc-item:nth-child(odd) { padding-right: 40px; border-right: 1px solid #222; }
+  .toc-item:nth-child(even) { padding-left: 40px; }
+  .toc-footer { margin-top: auto; padding-top: 40px; border-top: 1px solid #1a1a1a; }
+  .toc-footer p { font-size: 9px; color: #444; text-transform: uppercase; letter-spacing: 0.12em; }
+
+  /* ── CONTENT PAGES ── */
+  .content-page {
+    padding: 56px 64px;
+    min-height: 100vh;
+    border-bottom: 1px solid #e5e5e5;
+    position: relative;
+  }
+  .content-page::after {
+    content: '';
+    display: block;
+    height: 1px;
+  }
+
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 48px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid var(--black);
+  }
+  .page-header-left { font-size: 9px; font-weight: 700; letter-spacing: 0.15em; color: var(--muted); text-transform: uppercase; }
+  .page-num { font-size: 9px; font-weight: 600; color: var(--muted); }
+
+  .section-label {
+    font-size: 9px; font-weight: 800; letter-spacing: 0.2em;
+    color: var(--accent); text-transform: uppercase; margin-bottom: 8px;
+  }
+  .section-title {
+    font-size: 36px; font-weight: 900; letter-spacing: -0.02em;
+    line-height: 1.1; margin-bottom: 40px; color: var(--black);
+  }
+
+  h3 {
+    font-size: 14px; font-weight: 700; letter-spacing: -0.01em;
+    margin-top: 32px; margin-bottom: 12px; color: var(--black);
+    text-transform: uppercase; font-size: 10px; letter-spacing: 0.1em;
+  }
+  h3::before { content: '— '; color: var(--accent); }
+
+  p { margin-bottom: 12px; color: #222; font-size: 10.5pt; }
+
+  ul, ol { margin: 8px 0 16px 20px; }
+  li { margin-bottom: 6px; color: #222; font-size: 10.5pt; }
+  li strong { color: var(--black); }
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 8px; }
+  .two-col-wide { display: grid; grid-template-columns: 2fr 1fr; gap: 40px; margin-top: 8px; }
+
+  .callout {
+    background: #f8f8f8;
+    border-left: 3px solid var(--accent);
+    padding: 16px 20px;
+    margin: 20px 0;
+    border-radius: 0 4px 4px 0;
+  }
+  .callout p { margin-bottom: 0; font-size: 10pt; }
+
+  .pill {
+    display: inline-block;
+    font-size: 8px; font-weight: 700; letter-spacing: 0.1em;
+    text-transform: uppercase; padding: 3px 8px; border-radius: 3px;
+    margin: 2px;
+  }
+  .pill-blue { background: #dbeafe; color: #1d4ed8; }
+  .pill-purple { background: #ede9fe; color: #6d28d9; }
+  .pill-green { background: #dcfce7; color: #166534; }
+  .pill-orange { background: #ffedd5; color: #9a3412; }
+
+  .stack-row {
+    display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0 16px;
+  }
+
+  .req-block { margin-bottom: 28px; }
+  .req-label {
+    display: inline-block;
+    font-size: 9px; font-weight: 800; letter-spacing: 0.12em;
+    text-transform: uppercase; padding: 4px 10px; border-radius: 3px;
+    margin-bottom: 10px;
+  }
+  .must { background: #fee2e2; color: #991b1b; }
+  .should { background: #fef9c3; color: #854d0e; }
+  .could { background: #f1f5f9; color: #475569; }
+
+  .flow-step {
+    display: flex; gap: 16px; margin-bottom: 16px; align-items: flex-start;
+  }
+  .flow-num {
+    flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%;
+    background: var(--black); color: var(--white);
+    font-size: 11px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .flow-text { padding-top: 4px; }
+
+  table {
+    width: 100%; border-collapse: collapse; margin: 16px 0;
+    font-size: 9.5pt;
+  }
+  th {
+    text-align: left; padding: 8px 12px;
+    background: var(--black); color: var(--white);
+    font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+  }
+  td { padding: 8px 12px; border-bottom: 1px solid #e5e5e5; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  tr:nth-child(even) td { background: #fafafa; }
+
+  code {
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    font-size: 9pt;
+    background: #f0f0f0;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    padding: 1px 5px;
+    color: #c7254e;
+  }
+
+  .arch-diagram {
+    background: var(--black);
+    color: var(--white);
+    border-radius: 8px;
+    padding: 28px 32px;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    font-size: 9.5pt;
+    line-height: 2;
+    margin: 20px 0;
+    white-space: pre;
+  }
+
+  .story-item {
+    padding: 12px 0;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  .story-item:last-child { border-bottom: none; }
+  .story-role { font-size: 9px; font-weight: 700; letter-spacing: 0.1em; color: var(--accent); text-transform: uppercase; }
+  .story-text { font-size: 10.5pt; margin-top: 2px; }
+
+  .team-card {
+    background: #fafafa;
+    border: 1px solid #e5e5e5;
+    border-radius: 6px;
+    padding: 20px 24px;
+    margin-bottom: 16px;
+  }
+  .team-role { font-size: 9px; font-weight: 800; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent); }
+  .team-name { font-size: 16px; font-weight: 700; margin: 4px 0; }
+  .team-built { font-size: 10pt; color: #444; margin-top: 8px; }
+  .team-built strong { color: var(--black); }
+
+  .pitch-block {
+    background: var(--black);
+    color: var(--white);
+    border-radius: 8px;
+    padding: 28px 32px;
+    margin: 24px 0;
+  }
+  .pitch-block p { color: #ccc; margin-bottom: 0; }
+
+  .roadmap-row { display: grid; grid-template-columns: 140px 1fr; gap: 20px; margin-bottom: 20px; align-items: flex-start; }
+  .roadmap-phase { font-size: 9px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; }
+  .now { color: #166534; }
+  .soon { color: #1d4ed8; }
+  .later { color: #6d28d9; }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════ COVER ══════════════════════════════════════ -->
+<div class="cover page">
+  <div class="cover-top">
+    <div class="cover-logo">Cursor Buildathon · Cursor × TechTalk360</div>
+    <div class="cover-badge">Project Submission Document</div>
+  </div>
+
+  <div class="cover-main">
+    <div class="cover-eyebrow">Project Submission</div>
+    <div class="cover-title">Paper<br>Forge</div>
+    <div class="cover-sub">AI-powered A-Level exam paper generation for teachers — upload your papers, get a new one in 90 seconds.</div>
+    <div class="cover-divider"></div>
+    <div class="cover-meta">
+      <div class="cover-meta-item">
+        <label>Team</label>
+        <span>ShipHappens</span>
+      </div>
+      <div class="cover-meta-item">
+        <label>Track</label>
+        <span>Gemini</span>
+      </div>
+      <div class="cover-meta-item">
+        <label>Build Time</label>
+        <span>20 Hours</span>
+      </div>
+      <div class="cover-meta-item">
+        <label>Engineers</label>
+        <span>4 Developers</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="cover-bottom">
+    <div class="cover-bottom-left">Confidential · For Authorized Use Only</div>
+    <div class="cover-sponsors">
+      <span class="sponsor-tag active">Cursor</span>
+      <span class="sponsor-tag active">Gemini</span>
+      <span class="sponsor-tag active">Supabase</span>
+      <span class="sponsor-tag">Vercel</span>
+      <span class="sponsor-tag">ElevenLabs</span>
+      <span class="sponsor-tag">OpenAI</span>
+      <span class="sponsor-tag">Miro</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════ TOC ══════════════════════════════════════ -->
+<div class="toc-page page">
+  <div class="toc-header">
+    <p>Table of Contents</p>
+    <h1>Project Submission Document</h1>
+  </div>
+
+  <div class="toc-grid">
+    <div class="toc-item">
+      <div class="toc-num">Section 01</div>
+      <div class="toc-name">Project Overview</div>
+    </div>
+    <div class="toc-item">
+      <div class="toc-num">Section 02</div>
+      <div class="toc-name">Problem Statement</div>
+    </div>
+    <div class="toc-item">
+      <div class="toc-num">Section 03</div>
+      <div class="toc-name">Proposed Solution</div>
+    </div>
+    <div class="toc-item">
+      <div class="toc-num">Section 04</div>
+      <div class="toc-name">Functional Requirements</div>
+    </div>
+    <div class="toc-item">
+      <div class="toc-num">Section 05</div>
+      <div class="toc-name">Non-Functional Requirements</div>
+    </div>
+    <div class="toc-item">
+      <div class="toc-num">Section 06</div>
+      <div class="toc-name">Technical Architecture</div>
+    </div>
+    <div class="toc-item">
+      <div class="toc-num">Section 07</div>
+      <div class="toc-name">Security</div>
+    </div>
+    <div class="toc-item">
+      <div class="toc-num">Section 08</div>
+      <div class="toc-name">User Stories &amp; Use Cases</div>
+    </div>
+    <div class="toc-item">
+      <div class="toc-num">Section 09</div>
+      <div class="toc-name">Target Users &amp; Market</div>
+    </div>
+    <div class="toc-item">
+      <div class="toc-num">Section 10</div>
+      <div class="toc-name">Business Model</div>
+    </div>
+    <div class="toc-item">
+      <div class="toc-num">Section 11</div>
+      <div class="toc-name">Why This Project Leads the Track</div>
+    </div>
+    <div class="toc-item">
+      <div class="toc-num">Section 12</div>
+      <div class="toc-name">Team &amp; Roles</div>
+    </div>
+  </div>
+
+  <div class="toc-footer">
+    <p>Cursor Buildathon · Cursor × TechTalk360 · Confidential</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════ S01 — OVERVIEW ══════════════════════════════════════ -->
+<div class="content-page page">
+  <div class="page-header">
+    <div class="page-header-left">Cursor Buildathon · Project Submission Document · Cursor × TechTalk360</div>
+    <div class="page-num">3</div>
+  </div>
+
+  <div class="section-label">Section 01</div>
+  <div class="section-title">Project Overview</div>
+
+  <h3>Project Name &amp; One-Line Pitch</h3>
+  <p><strong>PaperForge</strong> — an AI-powered exam paper generator that turns 3–5 uploaded A-Level English papers into a brand-new, constraint-matched exam paper in under 90 seconds, giving teachers back hours of drafting time every week.</p>
+
+  <h3>Summary</h3>
+  <p>A-Level English teachers spend 4–8 hours manually drafting each practice paper — cross-checking mark allocations, question variety, difficulty balance, and syllabus alignment, all under the time pressure of exam season. PaperForge solves this by extracting the structural DNA of a set of uploaded papers into a precise "blueprint" (sections, marks, question types), then instructing Google Gemini to generate a fresh paper that satisfies every constraint exactly. The output appears live in the browser via streaming, is fully editable at the question level, pairs with an automatically generated answer key and marking scheme, and exports to a print-ready PDF. The primary users are A-Level and O-Level English teachers at tutoring centres and secondary schools, particularly across the UK and Southeast Asia where Cambridge qualifications dominate.</p>
+
+  <h3>Submission Details</h3>
+  <div class="two-col no-break">
+    <div>
+      <p><strong>Track:</strong> Gemini</p>
+      <p><strong>Track technology integration:</strong> Google Gemini is the core engine. Three distinct Gemini capabilities are used: <code>gemini-2.5-pro</code> / <code>gemini-2.5-flash</code> for structured paper generation and blueprint extraction (Gemini Files API + <code>response_schema</code>), <code>gemini-2.5-flash</code> for per-question regeneration and answer key generation, and <code>text-embedding-004</code> for embedding-based duplicate content detection.</p>
+    </div>
+    <div>
+      <p><strong>Team name:</strong> ShipHappens</p>
+      <p><strong>Demo URL:</strong> TBA (deployed on Vercel + Railway)</p>
+      <p><strong>Repository:</strong> TBA (GitHub — ShipHappens/PaperForge)</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════ S02 — PROBLEM ══════════════════════════════════════ -->
+<div class="content-page page">
+  <div class="page-header">
+    <div class="page-header-left">Cursor Buildathon · Project Submission Document · Cursor × TechTalk360</div>
+    <div class="page-num">4</div>
+  </div>
+
+  <div class="section-label">Section 02</div>
+  <div class="section-title">Problem Statement</div>
+
+  <h3>The Problem</h3>
+  <p>A-Level and O-Level English teachers at tutoring centres and secondary schools spend <strong>4–8 hours drafting a single practice exam paper</strong>. This is not a one-off effort — teachers need a continuous supply of fresh papers, typically 1–4 new papers per exam season per subject, to ensure students are not repeating questions they have already seen. Each paper must simultaneously maintain correct total marks, balance question types across sections (MCQ, structured response, essays), match the appropriate reading level and passage length, and align to the Cambridge Assessment International Education syllabus.</p>
+  <p>If left unsolved, teachers either produce fewer practice papers — directly harming student outcomes at a high-stakes stage — or burn out from the drafting workload on top of their teaching, marking, and administrative duties.</p>
+
+  <h3>Why It Matters</h3>
+  <p>The problem peaks twice a year: April–May and October–November, when A-Level exam seasons align. During these windows, the demand for practice materials spikes exactly when teachers have the least time to produce them.</p>
+  <p>Current workarounds all fall short:</p>
+  <ul>
+    <li><strong>Hand-editing old papers</strong> — slow, risks students recognising questions, and requires full re-typesetting for changed mark allocations.</li>
+    <li><strong>Third-party question banks</strong> (e.g., Hodder Education, licensed Cambridge packs) — expensive (£200–500/year per teacher), inflexible, and not customisable to a school's specific teaching style or local cultural context.</li>
+    <li><strong>Generic AI tools</strong> (ChatGPT, Gemini web) — require the teacher to be skilled at prompt engineering, produce unstructured output, perform no marks accounting, and cannot export a formatted paper.</li>
+  </ul>
+
+  <h3>Root Cause</h3>
+  <p>There is no tool that understands the <strong>structural DNA of an exam paper</strong> — the precise distribution of marks, question types, instruction styles, reading passage requirements, and section constraints — and can reproduce that structure with entirely fresh content at machine speed. The problem is not that AI cannot write exam questions. The problem is that nobody has built the pipeline that extracts constraints from real papers, enforces them during generation, validates the output, and delivers it in a form teachers can actually use.</p>
+</div>
+
+<!-- ══════════════════════════════════════ S03 — SOLUTION ══════════════════════════════════════ -->
+<div class="content-page page">
+  <div class="page-header">
+    <div class="page-header-left">Cursor Buildathon · Project Submission Document · Cursor × TechTalk360</div>
+    <div class="page-num">5</div>
+  </div>
+
+  <div class="section-label">Section 03</div>
+  <div class="section-title">Proposed Solution</div>
+
+  <h3>What the Product Does</h3>
+  <p>PaperForge is a browser-based tool with a four-step wizard: <strong>Upload → Blueprint Review → Editable Paper → Export</strong>.</p>
+  <p>The teacher drops 3–5 existing A-Level papers onto the upload page. Each PDF is stored in Supabase Storage and uploaded to the Gemini Files API, where it is cached for 48 hours. The teacher clicks "Extract Blueprint" — Gemini analyses all papers simultaneously and returns a <code>BlueprintSchema</code>: a structured JSON object encoding the exact section layout, marks per section, marks per question, question types (MCQ, structured, essay), context-passage requirements, and typical instruction phrasing. The teacher reviews the blueprint and can adjust any field before proceeding.</p>
+  <p>Clicking "Generate Paper" opens a Server-Sent Events stream. Gemini generates a full paper constrained by the blueprint — the backend post-validates that marks totals are within 10% of the target and retries if not. Section completion events fire in real time so the teacher sees the paper building out live rather than staring at a spinner. The result is a fully editable paper in the browser. The teacher can edit any question inline, regenerate a single question with an optional nudge instruction, or regenerate an entire section. A parallel Gemini call generates a complete answer key and marking scheme on demand. A duplicate-detection check (embedding cosine similarity against the source PDFs) flags any generated question that is too close to source content. When satisfied, the teacher exports to a print-ready PDF.</p>
+
+  <h3>Key Features</h3>
+  <table>
+    <tr><th>Feature</th><th>User Need Addressed</th></tr>
+    <tr><td><strong>PDF upload + Gemini Files API caching</strong></td><td>No re-upload cost; up to 5 source papers analysed together</td></tr>
+    <tr><td><strong>Blueprint extraction</strong></td><td>Teacher sees and can correct the structural spec before generation</td></tr>
+    <tr><td><strong>Constrained paper generation</strong></td><td>Marks totals and question types match the source papers exactly</td></tr>
+    <tr><td><strong>SSE streaming generation</strong></td><td>Real-time progress — paper appears section by section, not all-at-once</td></tr>
+    <tr><td><strong>Inline editing + per-question regeneration</strong></td><td>Teachers make small corrections without restarting the whole flow</td></tr>
+    <tr><td><strong>Per-section regeneration</strong></td><td>Replace a whole section that didn't land without touching the rest</td></tr>
+    <tr><td><strong>Answer key + marking scheme</strong></td><td>Produces hand-out-ready marking criteria, section by section</td></tr>
+    <tr><td><strong>Difficulty scoring (1–5) per question</strong></td><td>Balanced difficulty distribution visible before printing</td></tr>
+    <tr><td><strong>Duplicate content guard</strong></td><td>Warns if a generated question is too similar to a source paper</td></tr>
+    <tr><td><strong>PDF export</strong></td><td>Print-ready output; no reformatting needed</td></tr>
+  </table>
+
+  <h3>Scope</h3>
+  <div class="two-col no-break">
+    <div>
+      <p><strong>In scope:</strong></p>
+      <ul>
+        <li>All 10 features above, built and demonstrable</li>
+        <li>A-Level English (Cambridge syllabus)</li>
+        <li>Anonymous session model (no login required)</li>
+        <li>Cost and token tracking per AI call</li>
+      </ul>
+    </div>
+    <div>
+      <p><strong>Deliberately out of scope:</strong></p>
+      <ul>
+        <li>User authentication and persistent accounts</li>
+        <li>Multi-subject support (Maths, Sciences)</li>
+        <li>LMS integrations (Google Classroom, Canvas)</li>
+        <li>Collaborative editing by multiple teachers</li>
+        <li>Server-side headless PDF rendering (uses browser print)</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════ S04 — FUNCTIONAL REQS ══════════════════════════════════════ -->
+<div class="content-page page">
+  <div class="page-header">
+    <div class="page-header-left">Cursor Buildathon · Project Submission Document · Cursor × TechTalk360</div>
+    <div class="page-num">6</div>
+  </div>
+
+  <div class="section-label">Section 04</div>
+  <div class="section-title">Functional Requirements</div>
+
+  <div class="req-block no-break">
+    <span class="req-label must">Must Have</span>
+    <ul>
+      <li>The system shall accept 3–5 PDF uploads per session and store them in Supabase Storage.</li>
+      <li>The system shall upload each PDF to the Gemini Files API and cache the file URI to avoid re-upload on retry.</li>
+      <li>The system shall extract a <code>BlueprintSchema</code> — sections, marks totals, question types, instruction phrasing — from the uploaded PDFs via a single Gemini call.</li>
+      <li>The system shall generate a full exam paper constrained by the blueprint, with marks drift ≤10% from the target total.</li>
+      <li>The system shall stream generation progress to the frontend via Server-Sent Events, emitting section-completion events in real time.</li>
+      <li>The system shall display the generated paper with inline text editing on any question field.</li>
+      <li>The system shall support per-question regeneration with an optional teacher nudge string.</li>
+      <li>The system shall export the current paper state to a print-ready HTML/PDF via a Jinja2 template.</li>
+    </ul>
+  </div>
+
+  <div class="req-block no-break">
+    <span class="req-label should">Should Have</span>
+    <ul>
+      <li>The system should generate a complete answer key and marking scheme for any paper on demand.</li>
+      <li>The system should assign a difficulty score (1–5) to every question during generation.</li>
+      <li>The system should check generated questions against source PDFs for duplicate content using embedding cosine similarity.</li>
+      <li>The system should support per-section regeneration (replacing all questions in one section).</li>
+      <li>The system should fall back from <code>gemini-2.5-pro</code> to <code>gemini-2.5-flash</code> automatically on quota exhaustion.</li>
+      <li>The system should record token usage and estimated cost (USD) for every Gemini call in <code>api_usage_log</code>.</li>
+    </ul>
+  </div>
+
+  <div class="req-block no-break">
+    <span class="req-label could">Could Have / Won't Have (This Build)</span>
+    <ul>
+      <li>User authentication and persistent paper library (out of scope — anonymous sessions only).</li>
+      <li>Multi-subject support beyond A-Level English (out of scope — prompt re-engineering required).</li>
+      <li>LMS export to Google Classroom or Canvas (post-launch).</li>
+      <li>Collaborative editing (multiple teachers on one paper simultaneously).</li>
+      <li>Cost/token dashboard in the UI (logged to DB; UI display is post-MVP).</li>
+      <li>Server-side headless PDF renderer (browser print dialog is sufficient for MVP).</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════ S05 — NON-FUNCTIONAL REQS ══════════════════════════════════════ -->
+<div class="content-page page">
+  <div class="page-header">
+    <div class="page-header-left">Cursor Buildathon · Project Submission Document · Cursor × TechTalk360</div>
+    <div class="page-num">7</div>
+  </div>
+
+  <div class="section-label">Section 05</div>
+  <div class="section-title">Non-Functional Requirements</div>
+
+  <div class="two-col">
+    <div>
+      <h3>Performance</h3>
+      <ul>
+        <li>Blueprint extraction from 5 PDFs: <strong>≤15 seconds</strong></li>
+        <li>Paper generation (first SSE event): <strong>≤5 seconds</strong>; complete paper: <strong>≤90 seconds</strong></li>
+        <li>Per-question regeneration: <strong>≤10 seconds</strong></li>
+        <li>Answer key generation: <strong>≤20 seconds</strong></li>
+        <li>PDF export render: <strong>≤2 seconds</strong></li>
+      </ul>
+
+      <h3>Reliability &amp; Error Handling</h3>
+      <ul>
+        <li>All Gemini calls wrapped in a retry loop (max 3 attempts, exponential back-off)</li>
+        <li>Quota exhaustion (HTTP 429): automatic model fallback from <code>gemini-2.5-pro</code> → <code>gemini-2.5-flash</code></li>
+        <li>Post-validation on every AI response; marks drift &gt;10% triggers a retry rather than returning bad output</li>
+        <li>Corrupted or too-short PDFs rejected at upload with a clear user-facing message</li>
+        <li>Mid-stream Gemini errors emit a single <code>{event:"error"}</code> SSE message and close the connection cleanly</li>
+      </ul>
+    </div>
+
+    <div>
+      <h3>Usability</h3>
+      <ul>
+        <li>Wizard-style navigation with clear step indicators</li>
+        <li>Mobile-responsive layout (shadcn/ui + Tailwind CSS)</li>
+        <li>SSE progress events eliminate the blank-spinner problem during long generation</li>
+        <li>Inline editing requires no modal or separate save step</li>
+        <li>Accessible colour contrast (WCAG AA) in the default theme</li>
+      </ul>
+
+      <h3>Scalability</h3>
+      <ul>
+        <li>FastAPI backend is stateless; session state lives in Supabase (scales horizontally)</li>
+        <li>Gemini Files API 48-hour cache eliminates repeat-upload token cost as teacher iterates</li>
+        <li><code>pgvector</code> extension installed and <code>question_embedding</code> table ready for a cross-session question bank in v1 without schema migration</li>
+        <li>Dedup guard runs in-process per-request in MVP; migrates to a persistent vector index in v1</li>
+        <li>Supabase handles connection pooling; Railway/Fly.io backend scales by adding replicas</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════ S06 — ARCHITECTURE ══════════════════════════════════════ -->
+<div class="content-page page">
+  <div class="page-header">
+    <div class="page-header-left">Cursor Buildathon · Project Submission Document · Cursor × TechTalk360</div>
+    <div class="page-num">8</div>
+  </div>
+
+  <div class="section-label">Section 06</div>
+  <div class="section-title">Technical Architecture</div>
+
+  <h3>System Overview</h3>
+  <div class="arch-diagram">┌─────────────────────────────────────────────────────────────────────┐
+│  BROWSER  (Next.js 14 App Router · TypeScript · shadcn/ui · Zustand)│
+│  Upload Wizard → Blueprint Review → Editable Paper → Export Preview  │
+└────────────────────────────┬────────────────────────────────────────┘
+                             │  REST / SSE (JSON)
+                             ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│  FASTAPI BACKEND  (Python · Uvicorn · SQLModel · Pydantic)          │
+│  /sessions  /blueprint  /generate/stream  /regenerate  /answer-key  │
+│  /dedup     /export     /files                                       │
+│                                                                      │
+│   ai/                                                                │
+│   ├── client.py      (Gemini SDK singleton)                         │
+│   ├── wrapper.py     (call_structured · retry · usage logging)      │
+│   ├── blueprint.py   (extract_blueprint)                            │
+│   ├── generate.py    (generate_paper · generate_paper_stream)       │
+│   ├── regenerate.py  (regenerate_question · regenerate_section)     │
+│   ├── answer_key.py  (generate_answer_key)                          │
+│   └── dedup.py       (check_duplicates · cosine similarity)        │
+└──────────────┬──────────────────────────┬──────────────────────────┘
+               │  google-genai SDK        │  SQLModel / psycopg
+               ▼                          ▼
+┌──────────────────────────┐  ┌───────────────────────────────────────┐
+│  GOOGLE GEMINI API       │  │  SUPABASE                             │
+│  gemini-2.5-pro          │  │  PostgreSQL · pgvector extension       │
+│  gemini-2.5-flash        │  │  tables: sessions · source_files      │
+│  text-embedding-004      │  │          generated_papers · api_usage │
+│  Files API (48h cache)   │  │  Storage: source-pdfs bucket          │
+└──────────────────────────┘  └───────────────────────────────────────┘</div>
+
+  <h3>Technology Stack</h3>
+  <table>
+    <tr><th>Layer</th><th>Technology</th><th>Rationale</th></tr>
+    <tr><td>Frontend</td><td>Next.js 14 App Router, TypeScript, Tailwind CSS, shadcn/ui, Zustand, SWR, react-dropzone</td><td>Production-grade React with type safety; shadcn/ui eliminates custom component work for junior FE</td></tr>
+    <tr><td>Backend</td><td>FastAPI, Uvicorn, SQLModel, Pydantic, Alembic, python-multipart</td><td>Async-first Python; Pydantic schema-sharing between API layer and AI output validation</td></tr>
+    <tr><td>AI — generation</td><td>google-genai SDK, <code>gemini-2.5-pro</code> → <code>gemini-2.5-flash</code> fallback</td><td>Best-in-class multimodal reasoning; structured JSON output via <code>response_schema</code> eliminates prompt parsing</td></tr>
+    <tr><td>AI — embeddings</td><td><code>text-embedding-004</code> (Gemini)</td><td>Same API key; L2-normalised output makes cosine similarity a plain dot product</td></tr>
+    <tr><td>Database</td><td>Supabase managed PostgreSQL + pgvector</td><td>Zero-ops Postgres; pgvector ready for v1 question bank; Row-Level Security for future auth</td></tr>
+    <tr><td>File storage</td><td>Supabase Storage</td><td>Consistent with DB vendor; private buckets with signed URL access</td></tr>
+    <tr><td>PDF processing</td><td>PyMuPDF (<code>fitz</code>)</td><td>Fast C-extension; used for text extraction in dedup and metadata fallback</td></tr>
+    <tr><td>PDF export</td><td>Jinja2 + print CSS</td><td>Zero browser-side dependencies; teacher prints from native browser dialog</td></tr>
+    <tr><td>Hosting</td><td>Vercel (frontend), Railway/Fly.io (backend)</td><td>Zero-config deploys; both have free tiers sufficient for hackathon demo</td></tr>
+  </table>
+
+  <h3>Data Flow</h3>
+  <div class="flow-step no-break"><div class="flow-num">1</div><div class="flow-text"><strong>Upload:</strong> Teacher drops 3–5 PDFs → Next.js → <code>POST /sessions/{id}/files</code> → FastAPI saves to Supabase Storage → uploads each to Gemini Files API → caches <code>gemini_file_uri</code> in <code>source_files</code> table.</div></div>
+  <div class="flow-step no-break"><div class="flow-num">2</div><div class="flow-text"><strong>Blueprint:</strong> <code>POST /sessions/{id}/blueprint</code> → FastAPI calls <code>extract_blueprint(file_uris)</code> → Gemini returns <code>BlueprintSchema</code> JSON → stored in <code>sessions.blueprint</code>.</div></div>
+  <div class="flow-step no-break"><div class="flow-num">3</div><div class="flow-text"><strong>Generate (streaming):</strong> <code>POST /sessions/{id}/generate/stream</code> → <code>generate_paper_stream()</code> calls <code>generate_content_stream</code> → SSE events: <code>start</code> → <code>chunk</code> × N → <code>section</code> × sections → <code>complete {paper}</code>.</div></div>
+  <div class="flow-step no-break"><div class="flow-num">4</div><div class="flow-text"><strong>Edit / Regenerate:</strong> <code>PATCH /sessions/{id}/paper</code> for inline edits; <code>POST /sessions/{id}/regenerate/question</code> for Gemini-powered question swap; <code>POST /sessions/{id}/regenerate/section</code> for full-section replacement.</div></div>
+  <div class="flow-step no-break"><div class="flow-num">5</div><div class="flow-text"><strong>Answer Key:</strong> <code>POST /sessions/{id}/answer-key</code> → <code>generate_answer_key(paper)</code> → <code>AnswerKeySchema</code> returned and displayed alongside the paper.</div></div>
+  <div class="flow-step no-break"><div class="flow-num">6</div><div class="flow-text"><strong>Dedup:</strong> <code>POST /sessions/{id}/dedup</code> → <code>check_duplicates(paper, source_pdfs)</code> → embeddings compared via cosine similarity → <code>DuplicateWarning[]</code> with severity returned to UI.</div></div>
+  <div class="flow-step no-break"><div class="flow-num">7</div><div class="flow-text"><strong>Export:</strong> <code>GET /sessions/{id}/export</code> → FastAPI renders Jinja2 HTML template → returned to Next.js → browser print dialog → PDF.</div></div>
+
+  <h3>AI Integration</h3>
+  <p><strong>Provider:</strong> Google Gemini via the <code>google-genai</code> Python SDK.</p>
+  <p><strong>Models:</strong> <code>gemini-2.5-pro</code> for initial paper generation (most demanding reasoning task); <code>gemini-2.5-flash</code> for blueprint extraction, question regeneration, and answer key (speed-critical, lower cost); <code>text-embedding-004</code> for duplicate-content embeddings.</p>
+  <p><strong>Prompting strategy:</strong> Every AI call uses <code>response_schema=&lt;PydanticModel&gt;</code> via <code>response_mime_type="application/json"</code> — Gemini returns machine-validated JSON, not free text. Each module (<code>blueprint.py</code>, <code>generate.py</code>, <code>regenerate.py</code>, <code>answer_key.py</code>) maintains its own prompt template encoding explicit constraints: marks totals, question counts, marks-per-sub-part sums, no verbatim copying of source passages, difficulty distribution guidelines, and cultural relevance nudges.</p>
+  <p><strong>Shared wrapper:</strong> <code>ai/wrapper.py:call_structured()</code> handles retries (max 3), post-validation callbacks, model fallback, and per-call <code>UsageRecord</code> logging. No AI module calls the SDK directly; all calls go through the wrapper.</p>
+
+  <h3>Known Technical Limitations</h3>
+  <ul>
+    <li>Anonymous sessions only — session UUIDs provide no cryptographic isolation between users.</li>
+    <li><code>gemini-2.5-pro</code> free-tier quota is 0 RPM; a paid key is required for the pro-model generation path.</li>
+    <li>Dedup embedding check runs per-request with no persistent index; large source corpora will slow this call.</li>
+    <li>Export uses the browser print dialog; a server-side headless PDF renderer is needed for bulk export.</li>
+    <li>Subject scope is A-Level English only; other subjects require prompt re-engineering.</li>
+  </ul>
+</div>
+
+<!-- ══════════════════════════════════════ S07 — SECURITY ══════════════════════════════════════ -->
+<div class="content-page page">
+  <div class="page-header">
+    <div class="page-header-left">Cursor Buildathon · Project Submission Document · Cursor × TechTalk360</div>
+    <div class="page-num">9</div>
+  </div>
+
+  <div class="section-label">Section 07</div>
+  <div class="section-title">Security</div>
+
+  <div class="two-col">
+    <div>
+      <h3>Authentication &amp; Authorisation</h3>
+      <p>PaperForge uses anonymous sessions in this build — no login is required. A UUID4 session ID is generated on the user's first visit and stored in <code>localStorage</code>. All backend resources (source files, blueprints, generated papers) are scoped to the <code>session_id</code> column in every database table. Supabase Row-Level Security (RLS) policies are defined and ready; they are not enforced in MVP because there is no JWT to verify against, but the column structure means enabling auth is a one-line schema change for v1.</p>
+
+      <h3>Data Handling</h3>
+      <p>Uploaded PDFs are stored in a private Supabase Storage bucket; they are accessible only via signed URLs generated server-side. No PII is collected — teachers are fully anonymous. Session data (blueprints, generated papers) lives in Supabase PostgreSQL scoped to <code>session_id</code>. Gemini Files API stores uploaded PDFs for 48 hours and then auto-deletes them — no long-term storage on Google's side.</p>
+
+      <h3>API &amp; Secret Management</h3>
+      <p>All secrets — <code>GOOGLE_API_KEY</code>, Supabase service key, <code>DATABASE_URL</code> — are stored exclusively in <code>backend/.env</code>, which is listed in <code>.gitignore</code> and has never been committed to the repository. The frontend uses only the Supabase publishable anon key (safe for client-side exposure by design). No secrets appear in the Next.js bundle or any environment variable prefixed <code>NEXT_PUBLIC_</code> except the publishable key.</p>
+    </div>
+
+    <div>
+      <h3>Input Validation</h3>
+      <ul>
+        <li><strong>File type:</strong> Only <code>application/pdf</code> MIME type accepted at upload; non-PDF files are rejected with HTTP 422 before they touch storage.</li>
+        <li><strong>File size:</strong> Configurable maximum (default 20 MB) enforced by FastAPI's request body limit.</li>
+        <li><strong>AI output:</strong> All Gemini responses are validated against Pydantic schemas (<code>BlueprintSchema</code>, <code>PaperSchema</code>, <code>AnswerKeySchema</code>); malformed output triggers a retry rather than passing through to the UI.</li>
+        <li><strong>SQL:</strong> All database access goes through SQLModel's ORM layer — no raw string interpolation; SQL injection is not possible via the application layer.</li>
+        <li><strong>Session IDs:</strong> FastAPI validates that the <code>session_id</code> path parameter is a valid UUID4 before querying the database.</li>
+      </ul>
+
+      <h3>Known Vulnerabilities or Gaps</h3>
+      <ul>
+        <li>Session isolation is UUID-only — if a session ID is shared or guessed, another user can read that session's papers. Accepted for MVP hackathon use; fixed in v1 with JWT auth.</li>
+        <li>No rate limiting on API endpoints — acceptable for a controlled demo; required before public launch.</li>
+        <li>Gemini-generated content is not moderated for harmful material — acceptable for an internal school tool with trusted users.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════ S08 — USER STORIES ══════════════════════════════════════ -->
+<div class="content-page page">
+  <div class="page-header">
+    <div class="page-header-left">Cursor Buildathon · Project Submission Document · Cursor × TechTalk360</div>
+    <div class="page-num">10</div>
+  </div>
+
+  <div class="section-label">Section 08</div>
+  <div class="section-title">User Stories &amp; Use Cases</div>
+
+  <h3>Core User Stories</h3>
+  <div class="story-item"><div class="story-role">Teacher</div><div class="story-text">As a teacher, I want to upload my existing A-Level English papers so that PaperForge understands the exact exam structure and mark allocations I use.</div></div>
+  <div class="story-item"><div class="story-role">Teacher</div><div class="story-text">As a teacher, I want to review the extracted blueprint before generation so that I can catch any misinterpretations of my paper's structure before they propagate into the new paper.</div></div>
+  <div class="story-item"><div class="story-role">Teacher</div><div class="story-text">As a teacher, I want a new exam paper generated in under 2 minutes so that I can produce fresh practice papers without blocking my evening on drafting.</div></div>
+  <div class="story-item"><div class="story-role">Teacher</div><div class="story-text">As a teacher, I want to edit any question's wording inline so that I can make small adjustments without restarting the entire generation flow.</div></div>
+  <div class="story-item"><div class="story-role">Teacher</div><div class="story-text">As a teacher, I want to regenerate a single question with a nudge ("make this harder", "use a Sri Lankan context passage") so that I can improve individual questions without redoing the whole paper.</div></div>
+  <div class="story-item"><div class="story-role">Teacher</div><div class="story-text">As a teacher, I want an automatically generated answer key with mark-by-mark criteria so that I can hand it to a teaching assistant for marking without writing it myself.</div></div>
+  <div class="story-item"><div class="story-role">Teacher</div><div class="story-text">As a teacher, I want a warning if any generated question is suspiciously similar to a question from my source papers so that my students are not practicing on questions they have already seen.</div></div>
+  <div class="story-item"><div class="story-role">Teacher</div><div class="story-text">As a teacher, I want to export the final paper as a PDF so that I can print it and distribute it in class without further formatting work.</div></div>
+
+  <h3>Primary Use Case Walkthrough</h3>
+  <div class="flow-step no-break"><div class="flow-num">1</div><div class="flow-text">Teacher navigates to PaperForge. A session UUID is generated silently; the teacher sees the Upload page.</div></div>
+  <div class="flow-step no-break"><div class="flow-num">2</div><div class="flow-text">Teacher drags 3 PDF papers onto the upload zone. Files upload to Supabase Storage; FastAPI uploads each to the Gemini Files API and caches the file URIs.</div></div>
+  <div class="flow-step no-break"><div class="flow-num">3</div><div class="flow-text">Teacher clicks "Extract Blueprint". Gemini analyses all 3 papers simultaneously and returns a <code>BlueprintSchema</code> — sections, marks, question types, instruction phrasing. Blueprint appears on screen within 10 seconds.</div></div>
+  <div class="flow-step no-break"><div class="flow-num">4</div><div class="flow-text">Teacher reviews the blueprint, sees it correctly identified 3 sections (MCQ, structured response, essay), confirms, and clicks "Generate Paper".</div></div>
+  <div class="flow-step no-break"><div class="flow-num">5</div><div class="flow-text">A streaming connection opens. The UI shows "Generating Section A…", "Section A done — Section B in progress…". The complete paper appears within 60–90 seconds.</div></div>
+  <div class="flow-step no-break"><div class="flow-num">6</div><div class="flow-text">Teacher reads through the paper, tweaks a question's wording inline, and regenerates one essay question with the nudge "use a modern Sri Lankan context". New question appears in ~8 seconds.</div></div>
+  <div class="flow-step no-break"><div class="flow-num">7</div><div class="flow-text">Teacher clicks "Check for Duplicates". Dedup guard returns one medium-severity warning on a structured-response question. Teacher regenerates that question.</div></div>
+  <div class="flow-step no-break"><div class="flow-num">8</div><div class="flow-text">Teacher clicks "Generate Answer Key". Marking scheme appears alongside the paper in ~12 seconds.</div></div>
+  <div class="flow-step no-break"><div class="flow-num">9</div><div class="flow-text">Teacher clicks "Export PDF". Browser print dialog opens with a cleanly formatted paper. Teacher saves as PDF and sends to the photocopier.</div></div>
+
+  <h3>Edge Cases</h3>
+  <ul>
+    <li><strong>Corrupted PDF:</strong> FastAPI catches the PyMuPDF parse error and returns HTTP 422 with a message: "Could not read this PDF. Please check the file is not password-protected or corrupted."</li>
+    <li><strong>Too-small PDF</strong> (&lt;2 pages, &lt;500 words): Blueprint extractor raises a post-validation error and tells the user the paper is too short to analyse reliably.</li>
+    <li><strong>Marks drift &gt;10%:</strong> <code>generate.py</code> post-validator retries the Gemini call; after 3 retries, returns the best-effort result with a visible warning in the UI.</li>
+    <li><strong>Quota exhaustion (429):</strong> <code>wrapper.py</code> catches the error and retries with <code>gemini-2.5-flash</code> automatically; the teacher sees no interruption.</li>
+    <li><strong>Mid-stream disconnect:</strong> SSE error event fires, UI shows "Generation interrupted — retry?" with a button that resumes from the last confirmed section.</li>
+  </ul>
+</div>
+
+<!-- ══════════════════════════════════════ S09 — MARKET ══════════════════════════════════════ -->
+<div class="content-page page">
+  <div class="page-header">
+    <div class="page-header-left">Cursor Buildathon · Project Submission Document · Cursor × TechTalk360</div>
+    <div class="page-num">11</div>
+  </div>
+
+  <div class="section-label">Section 09</div>
+  <div class="section-title">Target Users &amp; Market</div>
+
+  <h3>Primary User</h3>
+  <p><strong>A-Level and O-Level English teachers</strong> at private tutoring centres and independent secondary schools. Specifically: teachers who are responsible for producing 1–4 new practice papers per exam season per subject, and who currently do this entirely manually. The pain is worst in the 6-week windows before the May/June and October/November Cambridge examination sittings, when demand for practice materials spikes exactly as teacher bandwidth shrinks due to revision classes, mock exams, and marking loads.</p>
+  <p>Secondary user: <strong>exam coordinators</strong> at schools with multiple teachers delivering the same subject — they need a consistent paper format across teachers and would use PaperForge as a shared paper-generation service rather than having each teacher produce their own.</p>
+
+  <h3>Market Opportunity</h3>
+  <table>
+    <tr><th>Segment</th><th>Size</th><th>Entry Wedge</th></tr>
+    <tr><td>UK private tutoring centres (Cambridge A-Level)</td><td>~5,000 centres, est. 15,000 teachers</td><td>Direct outreach; team has UK academic contacts</td></tr>
+    <tr><td>Sri Lanka Cambridge A/O Level schools</td><td>~800 schools, ~4,000 relevant teachers</td><td>Team is Sri Lankan; direct tutoring centre connections</td></tr>
+    <tr><td>Singapore / Malaysia Cambridge cohort</td><td>~2,000 schools, est. 10,000 teachers</td><td>Phase 2 expansion via teacher Facebook communities</td></tr>
+    <tr><td>Global Cambridge cohort (130+ countries)</td><td>~10,000 schools</td><td>Long-term via partner channel and Cambridge licensing</td></tr>
+  </table>
+  <p>Total addressable market at £12/teacher/month: <strong>~£18M ARR</strong> for the UK + Sri Lanka + Singapore segment alone. Initial serviceable market (independent tutoring centres, early adopters): <strong>~£2M ARR</strong>.</p>
+
+  <h3>Competitive Landscape</h3>
+  <table>
+    <tr><th>Competitor</th><th>What they offer</th><th>Key weakness</th></tr>
+    <tr><td><strong>Cambridge-licensed question banks</strong><br>(Hodder Education, PastPapers.co)</td><td>High-quality curated questions, syllabus-aligned</td><td>£200–500/year per teacher; zero customisation; same questions available to all students; no paper assembly</td></tr>
+    <tr><td><strong>Generic AI tools</strong><br>(ChatGPT, Gemini web UI, Claude)</td><td>Can draft individual questions on request</td><td>No marks accounting; unstructured output; teacher must format, assemble, and validate the full paper manually; no PDF export; no answer key</td></tr>
+    <tr><td><strong>Manual drafting</strong><br>(current default for most teachers)</td><td>Full editorial control; perfectly customised</td><td>4–8 hours per paper; not scalable; relies on individual teacher's time and expertise; no duplication detection</td></tr>
+  </table>
+  <p><strong>PaperForge's differentiation:</strong> The only tool that (a) ingests real exam papers as the specification source, (b) enforces marks constraints automatically, (c) produces structured, editable output with an answer key, and (d) checks its own output for duplicate content — all in one flow, in under 2 minutes.</p>
+</div>
+
+<!-- ══════════════════════════════════════ S10 — BUSINESS MODEL ══════════════════════════════════════ -->
+<div class="content-page page">
+  <div class="page-header">
+    <div class="page-header-left">Cursor Buildathon · Project Submission Document · Cursor × TechTalk360</div>
+    <div class="page-num">12</div>
+  </div>
+
+  <div class="section-label">Section 10</div>
+  <div class="section-title">Business Model</div>
+
+  <h3>Revenue Model</h3>
+  <p>SaaS subscription with a freemium entry tier:</p>
+  <table>
+    <tr><th>Tier</th><th>Price</th><th>What's included</th></tr>
+    <tr><td><strong>Free</strong></td><td>£0</td><td>2 paper generations / month, no answer key, no dedup guard, watermarked PDF export</td></tr>
+    <tr><td><strong>Pro</strong></td><td>£12 / teacher / month</td><td>Unlimited generations, answer key + marking scheme, dedup guard, clean PDF export, priority generation queue</td></tr>
+    <tr><td><strong>School</strong></td><td>£99 / school / month</td><td>Up to 20 teachers, shared paper library, cross-teacher duplicate detection, export to shared Google Drive</td></tr>
+  </table>
+  <p>Unit economics: Gemini cost per full paper generation (5 PDFs + blueprint + paper + answer key) ≈ $0.08–0.14 at flash-model rates, well below the implied £0.40/generation at Pro pricing even at 30 generations/month.</p>
+
+  <h3>Pricing Hypothesis</h3>
+  <p>£12/month for a Pro teacher subscription saves a minimum of 4 hours of drafting per paper generated. At a conservative teacher hourly value of £25/hr, a single paper saves £100 of time — making the subscription pay for itself in the first use of the month. Teachers already pay £200–500/year for static question banks that require manual paper assembly; PaperForge delivers a finished paper and undercuts that price while doing more work.</p>
+
+  <h3>Go-to-Market</h3>
+  <div class="roadmap-row">
+    <div class="roadmap-phase now">Month 0–1</div>
+    <div>Direct outreach to 10 tutoring centre owners the team knows personally in Sri Lanka. Offer 90-day Pro free trial in exchange for a structured case study (time-saved measurements, teacher feedback). Goal: 3 paying centres by month 2.</div>
+  </div>
+  <div class="roadmap-row">
+    <div class="roadmap-phase soon">Month 2–3</div>
+    <div>Expand via teacher Facebook groups (A-Level Teachers Sri Lanka, UK Cambridge Teachers Network). Referral programme: Pro teachers who refer a colleague get one free month. Target: 50 Pro subscribers.</div>
+  </div>
+  <div class="roadmap-row">
+    <div class="roadmap-phase later">Month 4–6</div>
+    <div>Approach school exam coordinators with the School tier. One School contract (£99/month, 20 teachers) replaces 20 individual Pro slots — lower CAC, higher retention. Target: 5 School contracts.</div>
+  </div>
+
+  <h3>Roadmap</h3>
+  <div class="roadmap-row">
+    <div class="roadmap-phase now">Now (this build)</div>
+    <div>Upload → Blueprint → Generate (streaming) → Edit → Regenerate (question + section) → Answer Key → Dedup Guard → Export PDF. All functional. A-Level English only.</div>
+  </div>
+  <div class="roadmap-row">
+    <div class="roadmap-phase soon">0–3 months</div>
+    <div>User authentication + persistent paper library. Multi-subject support (Maths, Sciences — prompt re-engineering). Cross-session question bank using pgvector (already instrumented). Miro export for visual lesson planning boards.</div>
+  </div>
+  <div class="roadmap-row">
+    <div class="roadmap-phase later">12 months</div>
+    <div>Full Cambridge IGCSE + A-Level syllabus coverage. LMS integrations (Google Classroom, Canvas). Collaborative editing (multiple teachers on one paper). AI difficulty calibration against past grade boundaries. Mobile app for on-the-go question approval.</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════ S11 — WHY WE WIN ══════════════════════════════════════ -->
+<div class="content-page page">
+  <div class="page-header">
+    <div class="page-header-left">Cursor Buildathon · Project Submission Document · Cursor × TechTalk360</div>
+    <div class="page-num">13</div>
+  </div>
+
+  <div class="section-label">Section 11</div>
+  <div class="section-title">Why This Project Leads the Track</div>
+
+  <h3>Technical Edge</h3>
+  <div class="pitch-block">
+    <p>PaperForge uses <strong>three distinct Gemini capabilities</strong> within a single coherent product: <code>gemini-2.5-pro/flash</code> for structured multimodal reasoning (blueprint extraction from PDFs, paper generation), <code>gemini-2.5-flash</code> for speed-critical sub-tasks (question regeneration, answer key), and <code>text-embedding-004</code> for semantic duplicate detection. This is not a wrapper around a single Gemini chat call — it is a multi-model AI pipeline where each model is chosen for the right job.</p>
+  </div>
+  <ul>
+    <li><strong>Structured JSON at every AI boundary</strong> — every Gemini call uses <code>response_schema=&lt;PydanticModel&gt;</code>. No prompt parsing, no regex, no "hope the model formats it correctly". The output is machine-validated JSON or the call retries.</li>
+    <li><strong>Production-grade SSE streaming</strong> — real-time paper generation via Python async generators through FastAPI's <code>StreamingResponse</code> to a Next.js <code>EventSource</code>. Section completion events fire as each section of the paper is completed, not as raw token chunks.</li>
+    <li><strong>Self-rejecting AI pipeline</strong> — the backend post-validates every generated paper against marks constraints. If the total drifts more than 10%, it rejects its own output and retries. The system is opinionated about quality, not just speed.</li>
+    <li><strong>pgvector-ready architecture</strong> — the duplicate guard uses <code>text-embedding-004</code> + cosine similarity today and will migrate to a persistent cross-session vector index with zero schema changes in v1.</li>
+  </ul>
+
+  <h3>Problem-Solution Fit</h3>
+  <p>The problem is <strong>real, specific, named, and quantified</strong>: A-Level teachers spend 4–8 hours per paper. Every feature in PaperForge traces directly to a step in that drafting process. Blueprint extraction replaces the manual structure-counting step. Constrained generation replaces the blank-page drafting step. Inline editing and per-question regeneration replace the revision step. Answer key generation replaces the marking-scheme-writing step. Duplicate detection replaces the manual cross-check step. The product does not add features for demo purposes — every feature exists because a teacher needed it.</p>
+
+  <h3>Execution Quality</h3>
+  <p>In 20 hours, the team shipped: a full-stack web application with a production FastAPI backend, a Next.js frontend with a multi-step wizard, 7 distinct REST and SSE endpoints, a shared AI wrapper with retry and fallback logic, 5 separate Gemini-integrated AI modules, Supabase PostgreSQL + Storage integration, and a Jinja2 PDF export pipeline. The entire AI layer is tested with sample scripts that can be run in isolation — the demo does not depend on live Gemini calls to look good.</p>
+
+  <h3>Real-World Potential</h3>
+  <p>This does not end at the hackathon. Three tutoring centres have already expressed interest in piloting. The architecture is designed for the next phase: pgvector is instrumented, Supabase RLS is ready for auth, and the prompt templates are parameterised by subject so adding Maths or Sciences is a configuration change, not a rewrite. The Cambridge A-Level cohort spans 130+ countries — the addressable market is genuinely large, and the team has direct distribution into the initial beachhead segment.</p>
+</div>
+
+<!-- ══════════════════════════════════════ S12 — TEAM ══════════════════════════════════════ -->
+<div class="content-page page">
+  <div class="page-header">
+    <div class="page-header-left">Cursor Buildathon · Project Submission Document · Cursor × TechTalk360</div>
+    <div class="page-num">14</div>
+  </div>
+
+  <div class="section-label">Section 12</div>
+  <div class="section-title">Team &amp; Roles</div>
+
+  <div class="team-card no-break">
+    <div class="team-role">AI Engineer</div>
+    <div class="team-name">AI Engineer — ShipHappens</div>
+    <div class="team-built"><strong>Built:</strong> The entire <code>backend/ai/</code> module — Gemini SDK client, shared retry wrapper (<code>wrapper.py</code>), blueprint extraction (<code>blueprint.py</code>), paper generation with streaming (<code>generate.py</code>), per-question and per-section regeneration (<code>regenerate.py</code>), answer key generation (<code>answer_key.py</code>), embedding-based duplicate guard (<code>dedup.py</code>), all Pydantic schemas (<code>schemas.py</code>), and sample-generation scripts. Led all prompt engineering, post-validation logic, and retry strategy. Proved out the Gemini SDK pattern in the first 2 hours of the build — establishing the foundation all three other engineers built on top of.</div>
+  </div>
+
+  <div class="team-card no-break">
+    <div class="team-role">Full-Stack Engineer 1 — Backend Lead</div>
+    <div class="team-name">Full-Stack 1 — ShipHappens</div>
+    <div class="team-built"><strong>Built:</strong> FastAPI application scaffolding (<code>backend/app/main.py</code>), all REST and SSE API endpoints (<code>app/routers/</code> — blueprint, generate/stream, regenerate, answer-key, dedup, export, files), session management, Supabase client wiring, and endpoint integration tests. Responsible for the API contract that the frontend consumed from h2 onward.</div>
+  </div>
+
+  <div class="team-card no-break">
+    <div class="team-role">Full-Stack Engineer 2 — Data Lead</div>
+    <div class="team-name">Full-Stack 2 — ShipHappens</div>
+    <div class="team-built"><strong>Built:</strong> Supabase project setup, Storage bucket configuration, SQLModel database models (<code>app/models/</code>), Alembic migration files, Supabase Storage adapter service, seed data and smoke tests, and the Jinja2 HTML export template with print CSS. Owns the data layer end-to-end — from schema definition to the final PDF export.</div>
+  </div>
+
+  <div class="team-card no-break">
+    <div class="team-role">Frontend Engineer</div>
+    <div class="team-name">Frontend — ShipHappens</div>
+    <div class="team-built"><strong>Built:</strong> Next.js 14 App Router scaffolding, the four-step wizard UI (Upload page, Blueprint Review page, Editable Paper page with inline editing and per-question regeneration, Export Preview page), Zustand state management, SWR data fetching, <code>EventSource</code> SSE consumer for streaming generation, and all loading/empty/error states. Responsible for every pixel the teacher sees.</div>
+  </div>
+
+  <h3>Why This Team</h3>
+  <p>The team covers every layer of the stack with zero overlap and zero gap: AI pipeline, backend API, data and persistence, and frontend UI. Each engineer owned a vertical slice that could be developed in parallel against a shared JSON contract (the Pydantic schemas). The AI engineer locked the API pattern in the first 2 hours — giving the backend and frontend engineers a stable foundation to build on immediately. Junior-level execution was mitigated by strong task decomposition, a shared retry and validation framework, and a sprint structure with hard milestones every 6 hours. The team ships.</p>
+
+  <div style="margin-top: 48px; padding-top: 24px; border-top: 1px solid #e5e5e5; text-align: center;">
+    <p style="font-size: 9px; color: #999; text-transform: uppercase; letter-spacing: 0.15em;">Cursor Buildathon · ShipHappens · PaperForge · Confidential</p>
+  </div>
+</div>
+
+</body>
+</html>

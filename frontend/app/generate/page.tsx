@@ -10,9 +10,9 @@ import { EditableStep } from "@/components/steps/EditableStep";
 import { ExportStep } from "@/components/steps/ExportStep";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
+import type { Blueprint, Paper } from "@/lib/types";
 
-interface UploadData {
-  files: { name: string; size: number; id: string }[];
+export interface PaperMeta {
   title: string;
   board: string;
   level: string;
@@ -20,21 +20,29 @@ interface UploadData {
 
 export default function GeneratePage() {
   const [step, setStep] = useState(1);
-  const [uploadData, setUploadData] = useState<UploadData>({
-    files: [],
-    title: "",
-    board: "",
-    level: "",
-  });
+  const [meta, setMeta] = useState<PaperMeta>({ title: "", board: "", level: "" });
+  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [blueprint, setBlueprint] = useState<Blueprint | null>(null);
+  const [paper, setPaper] = useState<Paper | null>(null);
 
-  const handleUploadNext = (data: UploadData) => {
-    setUploadData(data);
+  const handleUploadNext = (data: { sessionId: string; blueprint: Blueprint; meta: PaperMeta }) => {
+    setSessionId(data.sessionId);
+    setBlueprint(data.blueprint);
+    setMeta(data.meta);
     setStep(2);
+  };
+
+  const handleBlueprintNext = (generated: Paper) => {
+    setPaper(generated);
+    setStep(3);
   };
 
   const handleStartOver = () => {
     setStep(1);
-    setUploadData({ files: [], title: "", board: "", level: "" });
+    setMeta({ title: "", board: "", level: "" });
+    setSessionId(null);
+    setBlueprint(null);
+    setPaper(null);
   };
 
   return (
@@ -61,26 +69,31 @@ export default function GeneratePage() {
         {/* Step content */}
         <div>
           {step === 1 && <UploadStep onNext={handleUploadNext} />}
-          {step === 2 && (
+          {step === 2 && sessionId && blueprint && (
             <BlueprintStep
-              paperTitle={uploadData.title}
-              board={uploadData.board}
-              level={uploadData.level}
-              onNext={() => setStep(3)}
+              sessionId={sessionId}
+              blueprint={blueprint}
+              paperTitle={meta.title}
+              onNext={handleBlueprintNext}
               onBack={() => setStep(1)}
             />
           )}
-          {step === 3 && (
+          {step === 3 && sessionId && blueprint && paper && (
             <EditableStep
+              sessionId={sessionId}
+              blueprint={blueprint}
+              paper={paper}
+              onPaperChange={setPaper}
               onNext={() => setStep(4)}
               onBack={() => setStep(2)}
             />
           )}
-          {step === 4 && (
+          {step === 4 && sessionId && paper && (
             <ExportStep
-              paperTitle={uploadData.title}
-              board={uploadData.board}
-              level={uploadData.level}
+              sessionId={sessionId}
+              paper={paper}
+              board={meta.board}
+              level={meta.level}
               onBack={() => setStep(3)}
               onStartOver={handleStartOver}
             />
