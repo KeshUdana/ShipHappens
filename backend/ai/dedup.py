@@ -39,7 +39,7 @@ logger = logging.getLogger(__name__)
 
 # ── Config ───────────────────────────────────────────────────────────────────
 
-EMBED_MODEL = "text-embedding-004"
+EMBED_MODEL = "gemini-embedding-001"  # text-embedding-004 was retired (404s on v1beta)
 HIGH_THRESHOLD = 0.90
 MEDIUM_THRESHOLD = 0.80
 MIN_CHUNK_CHARS = 60   # ignore very short fragments (headers, page numbers)
