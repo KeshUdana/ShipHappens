@@ -6,81 +6,80 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Download, FileText, Loader2, Printer, RotateCcw, Share2, LayoutDashboard } from "lucide-react";
+import {
+  AlertTriangle,
+  FileText,
+  KeyRound,
+  Loader2,
+  Printer,
+  RotateCcw,
+  ShieldCheck,
+  LayoutDashboard,
+} from "lucide-react";
 import { toast } from "sonner";
+import { checkDuplicates, generateAnswerKey } from "@/lib/api";
+import { formatDuration } from "@/lib/utils";
+import type { AnswerKey, DedupResponse, Paper } from "@/lib/types";
 
 interface ExportStepProps {
-  paperTitle: string;
+  sessionId: string;
+  paper: Paper;
   board: string;
   level: string;
   onBack: () => void;
   onStartOver: () => void;
 }
 
-const MOCK_PAPER = {
-  title: "Physics Paper 1",
-  duration: "2 hours 30 minutes",
-  totalMarks: 120,
-  sections: [
-    {
-      id: "A",
-      heading: "Section A — Multiple Choice (20 marks)",
-      instruction: "Answer ALL questions. Each question carries 1 mark.",
-      questions: [
-        { number: 1, text: "A uniform beam of length 4.0 m and weight 200 N is supported at both ends. A load of 500 N is placed 1.0 m from the left end. What is the reaction force at the left support?", options: ["A  312 N", "B  275 N", "C  425 N", "D  188 N"], marks: 1 },
-        { number: 2, text: "Which of the following best describes the term 'specific heat capacity' of a substance?", options: ["A  Energy per unit mass per degree", "B  Energy needed to melt 1 kg", "C  Energy needed to vaporise 1 kg", "D  Energy per unit volume per degree"], marks: 1 },
-        { number: 3, text: "A wave has a frequency of 250 Hz and a wavelength of 1.4 m. What is its speed?", options: ["A  178 m s⁻¹", "B  350 m s⁻¹", "C  250 m s⁻¹", "D  500 m s⁻¹"], marks: 1 },
-      ],
-    },
-    {
-      id: "B",
-      heading: "Section B — Structured Questions (60 marks)",
-      instruction: "Answer ALL questions. Show all working clearly.",
-      questions: [
-        {
-          number: 1,
-          text: "A car of mass 1200 kg accelerates from rest to 20 m s⁻¹ in 8.0 s on a straight horizontal road.",
-          subParts: [
-            { label: "(a)", text: "Calculate the acceleration of the car.", marks: 2 },
-            { label: "(b)", text: "Calculate the net force acting on the car during acceleration.", marks: 2 },
-            { label: "(c)", text: "If the driving force is 4500 N, calculate the frictional force opposing motion.", marks: 2 },
-            { label: "(d)", text: "Sketch a velocity-time graph for the motion described. Label the axes and show the values.", marks: 4 },
-          ],
-          marks: 10,
-        },
-      ],
-    },
-    {
-      id: "C",
-      heading: "Section C — Extended Response (40 marks)",
-      instruction: "Answer ONE question only from this section.",
-      questions: [
-        {
-          number: 1,
-          text: "Describe and explain the factors that affect the resistance of a metallic conductor. In your answer, include a discussion of how temperature affects resistance and how this behaviour differs between metallic conductors and semiconductors. Use appropriate equations and diagrams where necessary.",
-          marks: 20,
-        },
-      ],
-    },
-  ],
+const SEVERITY_STYLES: Record<string, string> = {
+  high: "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300",
+  medium: "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300",
+  low: "bg-yellow-50 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300",
 };
 
-export function ExportStep({ paperTitle, board, level, onBack, onStartOver }: ExportStepProps) {
-  const [downloading, setDownloading] = useState(false);
+export function ExportStep({ sessionId, paper, board, level, onBack, onStartOver }: ExportStepProps) {
   const [printing, setPrinting] = useState(false);
+  const [answerKey, setAnswerKey] = useState<AnswerKey | null>(null);
+  const [generatingKey, setGeneratingKey] = useState(false);
+  const [dedup, setDedup] = useState<DedupResponse | null>(null);
+  const [checkingDedup, setCheckingDedup] = useState(false);
 
-  const handleDownload = async () => {
-    setDownloading(true);
-    await new Promise((r) => setTimeout(r, 1500));
-    setDownloading(false);
-    toast.success("PDF downloaded successfully.");
+  const handlePrint = () => {
+    setPrinting(true);
+    toast.info("Use “Save as PDF” in the print dialog to download.");
+    setTimeout(() => {
+      window.print();
+      setPrinting(false);
+    }, 300);
   };
 
-  const handlePrint = async () => {
-    setPrinting(true);
-    await new Promise((r) => setTimeout(r, 800));
-    setPrinting(false);
-    window.print();
+  const handleAnswerKey = async () => {
+    setGeneratingKey(true);
+    try {
+      const key = await generateAnswerKey(sessionId, paper);
+      setAnswerKey(key);
+      toast.success("Answer key generated.");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Answer key generation failed.");
+    } finally {
+      setGeneratingKey(false);
+    }
+  };
+
+  const handleDedup = async () => {
+    setCheckingDedup(true);
+    try {
+      const result = await checkDuplicates(sessionId, paper);
+      setDedup(result);
+      if (result.warnings.length === 0) {
+        toast.success("No overlap with the source papers found.");
+      } else {
+        toast.warning(`${result.warnings.length} question(s) overlap with source papers.`);
+      }
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Originality check failed.");
+    } finally {
+      setCheckingDedup(false);
+    }
   };
 
   return (
@@ -98,30 +97,40 @@ export function ExportStep({ paperTitle, board, level, onBack, onStartOver }: Ex
       </div>
 
       {/* Action bar */}
-      <div className="flex flex-wrap gap-2 p-4 rounded-xl border bg-muted/40">
-        <Button className="flex-1 sm:flex-none h-9 text-sm" onClick={handleDownload} disabled={downloading}>
-          {downloading ? (
-            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-          ) : (
-            <Download className="w-4 h-4 mr-2" />
-          )}
-          Download PDF
-        </Button>
-        <Button variant="outline" className="flex-1 sm:flex-none h-9 text-sm" onClick={handlePrint} disabled={printing}>
+      <div className="flex flex-wrap gap-2 p-4 rounded-xl border bg-muted/40 print:hidden">
+        <Button className="flex-1 sm:flex-none h-9 text-sm" onClick={handlePrint} disabled={printing}>
           {printing ? (
             <Loader2 className="w-4 h-4 mr-2 animate-spin" />
           ) : (
             <Printer className="w-4 h-4 mr-2" />
           )}
-          Print
+          Print / Save PDF
         </Button>
         <Button
           variant="outline"
           className="flex-1 sm:flex-none h-9 text-sm"
-          onClick={() => toast.success("Share link copied to clipboard.")}
+          onClick={handleAnswerKey}
+          disabled={generatingKey}
         >
-          <Share2 className="w-4 h-4 mr-2" />
-          Share
+          {generatingKey ? (
+            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+          ) : (
+            <KeyRound className="w-4 h-4 mr-2" />
+          )}
+          {answerKey ? "Regenerate Answer Key" : "Generate Answer Key"}
+        </Button>
+        <Button
+          variant="outline"
+          className="flex-1 sm:flex-none h-9 text-sm"
+          onClick={handleDedup}
+          disabled={checkingDedup}
+        >
+          {checkingDedup ? (
+            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+          ) : (
+            <ShieldCheck className="w-4 h-4 mr-2" />
+          )}
+          Check Originality
         </Button>
         <div className="flex-1 sm:flex-none sm:ml-auto flex gap-2">
           <Link href="/">
@@ -137,6 +146,34 @@ export function ExportStep({ paperTitle, board, level, onBack, onStartOver }: Ex
         </div>
       </div>
 
+      {/* Dedup warnings */}
+      {dedup && dedup.warnings.length > 0 && (
+        <Card className="border-amber-300/60 print:hidden">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-semibold flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4 text-amber-500" />
+              Originality warnings ({dedup.warnings.length})
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2 pb-4">
+            {dedup.warnings.map((w) => (
+              <div key={w.question_id} className="flex items-start gap-3 text-xs">
+                <span className={`px-2 py-0.5 rounded-full font-semibold shrink-0 ${SEVERITY_STYLES[w.severity] ?? SEVERITY_STYLES.low}`}>
+                  {w.severity} · {(w.similarity * 100).toFixed(0)}%
+                </span>
+                <p className="text-muted-foreground">
+                  <span className="font-semibold text-foreground">{w.question_id}</span> resembles:
+                  {" "}“{w.matched_source_snippet}”
+                </p>
+              </div>
+            ))}
+            <p className="text-[11px] text-muted-foreground pt-1">
+              Regenerate flagged questions in the previous step to improve originality.
+            </p>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Paper preview */}
       <div
         id="paper-preview"
@@ -147,9 +184,7 @@ export function ExportStep({ paperTitle, board, level, onBack, onStartOver }: Ex
           <div className="flex items-start justify-between">
             <div className="space-y-1">
               {board && <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">{board}</p>}
-              <h1 className="text-2xl font-bold text-foreground">
-                {paperTitle || MOCK_PAPER.title}
-              </h1>
+              <h1 className="text-2xl font-bold text-foreground">{paper.title}</h1>
               {level && <Badge variant="secondary" className="text-xs">{level}</Badge>}
             </div>
             <div className="flex items-center gap-2 text-muted-foreground">
@@ -158,65 +193,53 @@ export function ExportStep({ paperTitle, board, level, onBack, onStartOver }: Ex
           </div>
           <Separator />
           <div className="flex flex-wrap gap-6 text-sm text-muted-foreground">
-            <span><span className="font-medium text-foreground">Duration:</span> {MOCK_PAPER.duration}</span>
-            <span><span className="font-medium text-foreground">Total Marks:</span> {MOCK_PAPER.totalMarks}</span>
-            <span><span className="font-medium text-foreground">Date:</span> May 2025</span>
+            <span><span className="font-medium text-foreground">Duration:</span> {formatDuration(paper.duration_minutes)}</span>
+            <span><span className="font-medium text-foreground">Total Marks:</span> {paper.total_marks}</span>
           </div>
-          <p className="text-xs text-muted-foreground italic border-t pt-3">
-            READ THE INSTRUCTIONS ON THE FRONT COVER CAREFULLY. Answer all questions in the spaces provided.
-            Calculators may be used unless otherwise stated.
-          </p>
+          {paper.instructions.length > 0 && (
+            <ul className="text-xs text-muted-foreground italic border-t pt-3 space-y-0.5 list-disc list-inside">
+              {paper.instructions.map((inst, i) => (
+                <li key={i}>{inst}</li>
+              ))}
+            </ul>
+          )}
         </div>
 
         {/* Sections */}
         <div className="p-8 pt-6 space-y-8 print:p-6">
-          {MOCK_PAPER.sections.map((section) => (
+          {paper.sections.map((section) => (
             <div key={section.id} className="space-y-4">
               <div className="space-y-1">
-                <h2 className="text-base font-bold">{section.heading}</h2>
-                <p className="text-xs text-muted-foreground italic">{section.instruction}</p>
+                <h2 className="text-base font-bold">{section.title} ({section.marks} marks)</h2>
+                <p className="text-xs text-muted-foreground italic">{section.instructions}</p>
               </div>
               <Separator />
               <div className="space-y-5">
                 {section.questions.map((q) => (
-                  <div key={q.number} className="space-y-2">
+                  <div key={q.id} className="space-y-2">
+                    {q.context_passage && (
+                      <p className="ml-8 text-sm italic text-muted-foreground border rounded p-3 whitespace-pre-line">
+                        {q.context_passage}
+                      </p>
+                    )}
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex items-start gap-3 flex-1">
-                        <span className="font-bold text-sm shrink-0 w-5">{q.number}.</span>
-                        <p className="text-sm leading-relaxed">{q.text}</p>
+                        <span className="font-bold text-sm shrink-0 w-6">{q.number}.</span>
+                        <p className="text-sm leading-relaxed whitespace-pre-line">{q.prompt}</p>
                       </div>
-                      <Badge variant="outline" className="text-xs shrink-0 self-start">
-                        {"marks" in q ? `${q.marks}m` : ""}
-                      </Badge>
+                      <Badge variant="outline" className="text-xs shrink-0 self-start">{q.marks}m</Badge>
                     </div>
-                    {"options" in q && q.options && (
-                      <div className="ml-8 grid grid-cols-1 sm:grid-cols-2 gap-1.5 mt-2">
-                        {q.options.map((opt) => (
-                          <div key={opt} className="text-sm flex items-center gap-2">
-                            <div className="w-4 h-4 rounded-full border border-border shrink-0" />
-                            <span>{opt}</span>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                    {"subParts" in q && q.subParts && (
-                      <div className="ml-8 space-y-3 mt-2">
-                        {q.subParts.map((sp) => (
+                    {q.sub_parts.length > 0 && (
+                      <div className="ml-9 space-y-3 mt-2">
+                        {q.sub_parts.map((sp) => (
                           <div key={sp.label} className="flex items-start gap-3">
-                            <span className="text-sm font-semibold shrink-0 w-6">{sp.label}</span>
+                            <span className="text-sm font-semibold shrink-0 w-7">{sp.label}</span>
                             <div className="flex-1 space-y-1">
-                              <p className="text-sm leading-relaxed">{sp.text}</p>
+                              <p className="text-sm leading-relaxed whitespace-pre-line">{sp.prompt}</p>
                               <div className="h-8 border-b border-dashed border-border/60" />
                             </div>
                             <Badge variant="outline" className="text-xs shrink-0">{sp.marks}m</Badge>
                           </div>
-                        ))}
-                      </div>
-                    )}
-                    {!("subParts" in q) && !("options" in q) && (
-                      <div className="ml-8 space-y-1.5 mt-2">
-                        {[...Array(6)].map((_, i) => (
-                          <div key={i} className="h-7 border-b border-dashed border-border/50" />
                         ))}
                       </div>
                     )}
@@ -232,14 +255,75 @@ export function ExportStep({ paperTitle, board, level, onBack, onStartOver }: Ex
         </div>
       </div>
 
-      <Card className="bg-muted/30">
+      {/* Answer key */}
+      {answerKey && (
+        <div className="border rounded-xl bg-white dark:bg-card shadow-sm overflow-hidden">
+          <div className="border-b p-6 space-y-1">
+            <div className="flex items-center gap-2">
+              <KeyRound className="w-4 h-4 text-muted-foreground" />
+              <h2 className="text-lg font-bold">Answer Key & Marking Scheme</h2>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {answerKey.paper_title} · {answerKey.total_marks} marks
+            </p>
+          </div>
+          <div className="p-6 space-y-6">
+            {answerKey.sections.map((section) => (
+              <div key={section.section_id} className="space-y-3">
+                <h3 className="text-sm font-bold uppercase tracking-wide">{section.section_title}</h3>
+                <div className="space-y-4">
+                  {section.answers.map((ans) => (
+                    <div key={ans.question_id} className="rounded-lg border p-4 space-y-2">
+                      <p className="text-xs font-semibold text-muted-foreground uppercase">{ans.question_id}</p>
+                      <p className="text-sm leading-relaxed whitespace-pre-line">{ans.model_answer}</p>
+                      {ans.sub_part_answers.length > 0 && (
+                        <div className="space-y-1.5 pt-1">
+                          {ans.sub_part_answers.map((spa) => (
+                            <div key={spa.label} className="flex items-start gap-2 text-sm">
+                              <span className="font-semibold shrink-0">{spa.label}</span>
+                              <p className="flex-1 whitespace-pre-line">{spa.model_answer}</p>
+                              <span className="text-xs text-muted-foreground shrink-0">[{spa.marks}]</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      {ans.marking_criteria.length > 0 && (
+                        <div className="pt-1">
+                          <p className="text-xs font-semibold text-muted-foreground mb-1">Marking criteria</p>
+                          <ul className="text-xs text-muted-foreground list-disc list-inside space-y-0.5">
+                            {ans.marking_criteria.map((c, i) => (
+                              <li key={i}>{c}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                      {ans.common_mistakes.length > 0 && (
+                        <div className="pt-1">
+                          <p className="text-xs font-semibold text-amber-600 dark:text-amber-400 mb-1">Common mistakes</p>
+                          <ul className="text-xs text-muted-foreground list-disc list-inside space-y-0.5">
+                            {ans.common_mistakes.map((m, i) => (
+                              <li key={i}>{m}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <Card className="bg-muted/30 print:hidden">
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-semibold">Export notes</CardTitle>
         </CardHeader>
         <CardContent className="text-xs text-muted-foreground space-y-1 pb-4">
           <p>• Download uses browser print-to-PDF for clean A4 formatting.</p>
-          <p>• For server-side PDF generation (v2), WeasyPrint is integrated in the backend.</p>
-          <p>• Answer spaces are proportional to the marks allocated.</p>
+          <p>• The answer key is generated from your edited paper, not the original draft.</p>
+          <p>• “Check Originality” compares every question against the uploaded source PDFs.</p>
         </CardContent>
       </Card>
     </div>

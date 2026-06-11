@@ -28,24 +28,23 @@ import {
   Sparkles,
 } from "lucide-react";
 import { toast } from "sonner";
+import { createSession, extractBlueprint, uploadSourceFile } from "@/lib/api";
+import type { Blueprint } from "@/lib/types";
+import type { PaperMeta } from "@/app/generate/page";
 
 interface UploadedFile {
-  name: string;
-  size: number;
+  file: File;
   id: string;
 }
 
 interface UploadStepProps {
-  onNext: (data: {
-    files: UploadedFile[];
-    title: string;
-    board: string;
-    level: string;
-  }) => void;
+  onNext: (data: { sessionId: string; blueprint: Blueprint; meta: PaperMeta }) => void;
 }
 
 const BOARDS = ["Cambridge (CAIE)", "Edexcel", "AQA", "OCR", "IB Diploma", "Local (Sri Lanka)"];
 const LEVELS = ["O/L (Ordinary Level)", "A/L (Advanced Level)", "IGCSE", "AS Level", "A2 Level", "Grade 9–11"];
+
+type Phase = "idle" | "uploading" | "extracting";
 
 function formatBytes(bytes: number) {
   if (bytes < 1024) return `${bytes} B`;
@@ -59,7 +58,8 @@ export function UploadStep({ onNext }: UploadStepProps) {
   const [title, setTitle] = useState("");
   const [board, setBoard] = useState("");
   const [level, setLevel] = useState("");
-  const [analyzing, setAnalyzing] = useState(false);
+  const [phase, setPhase] = useState<Phase>("idle");
+  const [uploadProgress, setUploadProgress] = useState("");
 
   const handleFiles = useCallback((incoming: FileList | null) => {
     if (!incoming) return;
@@ -70,7 +70,7 @@ export function UploadStep({ onNext }: UploadStepProps) {
     setFiles((prev) => {
       const combined = [
         ...prev,
-        ...valid.map((f) => ({ name: f.name, size: f.size, id: crypto.randomUUID() })),
+        ...valid.map((f) => ({ file: f, id: crypto.randomUUID() })),
       ];
       if (combined.length > 5) {
         toast.warning("Maximum 5 files allowed. Extra files were ignored.");
@@ -98,11 +98,33 @@ export function UploadStep({ onNext }: UploadStepProps) {
       toast.error("Please upload at least one PDF.");
       return;
     }
-    setAnalyzing(true);
-    await new Promise((r) => setTimeout(r, 2200));
-    setAnalyzing(false);
-    onNext({ files, title, board, level });
+    try {
+      setPhase("uploading");
+      const session = await createSession({
+        title: title || null,
+        board: board || null,
+        level: level || null,
+      });
+
+      for (let i = 0; i < files.length; i++) {
+        setUploadProgress(`Uploading ${i + 1}/${files.length}…`);
+        await uploadSourceFile(session.id, files[i].file);
+      }
+
+      setPhase("extracting");
+      const blueprint = await extractBlueprint(session.id);
+
+      toast.success("Blueprint extracted from your papers.");
+      onNext({ sessionId: session.id, blueprint, meta: { title, board, level } });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Analysis failed. Is the backend running?");
+    } finally {
+      setPhase("idle");
+      setUploadProgress("");
+    }
   };
+
+  const busy = phase !== "idle";
 
   return (
     <div className="max-w-2xl mx-auto w-full space-y-6">
@@ -160,9 +182,9 @@ export function UploadStep({ onNext }: UploadStepProps) {
             </Button>
           </div>
           <div className="space-y-2">
-            {files.map((file) => (
+            {files.map(({ file, id }) => (
               <div
-                key={file.id}
+                key={id}
                 className="flex items-center gap-3 px-3 py-2.5 rounded-lg border bg-card"
               >
                 <div className="w-8 h-8 rounded-md bg-red-50 dark:bg-red-950 flex items-center justify-center shrink-0">
@@ -176,7 +198,7 @@ export function UploadStep({ onNext }: UploadStepProps) {
                   variant="ghost"
                   size="icon"
                   className="w-7 h-7 shrink-0 text-muted-foreground hover:text-destructive"
-                  onClick={() => removeFile(file.id)}
+                  onClick={() => removeFile(id)}
                 >
                   <X className="w-3.5 h-3.5" />
                 </Button>
@@ -244,12 +266,14 @@ export function UploadStep({ onNext }: UploadStepProps) {
       <Button
         className="w-full h-11 text-sm font-semibold"
         onClick={handleAnalyze}
-        disabled={files.length === 0 || analyzing}
+        disabled={files.length === 0 || busy}
       >
-        {analyzing ? (
+        {busy ? (
           <>
             <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-            Analyzing papers…
+            {phase === "uploading"
+              ? uploadProgress || "Uploading…"
+              : "Extracting blueprint… (this can take a minute)"}
           </>
         ) : (
           <>
